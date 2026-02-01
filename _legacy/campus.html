@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Virtual - SCRUTINIA</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="logoscrutinia.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://player.vimeo.com/api/player.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #e2e8f0;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155; 
+        }
+        .active-module {
+            background: rgba(14, 165, 233, 0.1);
+            border-left: 3px solid #0ea5e9;
+        }
+        /* Vimeo official responsive container */
+        .vimeo-container {
+            padding: 56.25% 0 0 0;
+            position: relative;
+        }
+        .vimeo-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="flex-none h-16 border-b border-slate-800 bg-slate-950/50 backdrop-blur-md flex items-center px-6 justify-between z-20">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <img src="logoscrutinia.png" alt="Scrutinia Logo" class="h-8 w-8">
+                <span class="font-bold text-lg tracking-tight text-white">SCRUTINIA <span class="text-cyan-400 font-light">CAMPUS</span></span>
+            </a>
+        </div>
+        <div>
+            <a href="index.html" class="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al inicio
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar (Modules) -->
+        <aside class="w-full md:w-80 flex-none bg-slate-900/50 border-r border-slate-800 overflow-y-auto flex flex-col hidden md:flex">
+            <div class="p-6 border-b border-slate-800/50">
+                <h2 class="text-xs font-mono uppercase tracking-widest text-slate-500 mb-1">Contenido del curso</h2>
+                <h3 class="text-xl font-bold text-white">Formación Electoral</h3>
+            </div>
+            
+            <div id="moduleList" class="flex flex-col py-2">
+                <!-- Modules will be injected here via JS -->
+            </div>
+        </aside>
+
+        <!-- Content Area (Video) -->
+        <main class="flex-1 bg-black relative flex flex-col">
+            <!-- Mobile Menu Toggle -->
+            <div class="md:hidden p-3 border-b border-slate-800 flex justify-between items-center bg-slate-900 flex-none">
+                <span class="font-bold text-white text-sm truncate mr-2" id="mobileCurrentTitle">Selecciona un módulo</span>
+                <button id="menuToggle" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg transition-colors">
+                    <span class="text-xs font-medium">Módulos</span>
+                    <i data-lucide="list" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Drawer (Hidden by default) -->
+            <div id="mobileDrawer" class="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm transform translate-x-full transition-transform duration-300 md:hidden flex flex-col">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="font-bold text-white">Módulos</h3>
+                    <button id="closeDrawer" class="text-slate-300">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div id="mobileModuleList" class="overflow-y-auto flex-1 py-2">
+                    <!-- Mobile Modules injected here -->
+                </div>
+            </div>
+
+            <!-- Video Container -->
+            <div class="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-10 overflow-y-auto">
+                <div class="w-full max-w-4xl">
+                    <div class="bg-slate-900 rounded-lg md:rounded-xl shadow-2xl border border-slate-800 relative">
+                        <!-- Vimeo Player - Official embed structure -->
+                        <div class="vimeo-container">
+                            <iframe id="vimeoPlayer" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen mozallowfullscreen webkitallowfullscreen title="Video del curso"></iframe>
+                        </div>
+                        
+                        <!-- Empty State (No video selected) -->
+                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 bg-slate-900 z-10 hidden">
+                            <i data-lucide="play-circle" class="w-16 h-16 mb-4 opacity-50"></i>
+                            <p>Selecciona un módulo para comenzar</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 md:mt-8 px-1">
+                        <h1 id="videoTitle" class="text-lg sm:text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">Introducción</h1>
+                        <p id="videoDescription" class="text-sm md:text-base text-slate-400 leading-relaxed">Bienvenido al curso de formación electoral ciudadana.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Module Data
+        // IMPORTANT: Replace 'VIDEO_ID' with actual Vimeo video IDs
+        // Example: https://vimeo.com/76979871 -> ID is 76979871
+        const modules = [
+            {
+                id: 0,
+                title: "INTRODUCCIÓN",
+                description: "Bienvenida y objetivos del curso de formación electoral. Entendiendo la importancia de la verificación ciudadana.",
+                videoId: "1159605526",
+                duration: "01:36" 
+            },
+            {
+                id: 1,
+                title: "ESTRUCTURA EN ELECCIONES",
+                description: "Comprendiendo el sistema electoral, la administración y los roles clave en el proceso.",
+                videoId: "1159605724",
+                duration: "03:21"
+            },
+            {
+                id: 2,
+                title: "COMO DEBE ESTAR EL COLEGIO ELECTORAL",
+                description: "Requisitos físicos y legales del colegio electoral antes de la apertura. Cabinas, urnas y señalización.",
+                videoId: "1159616669",
+                duration: "04:46"
+            },
+            {
+                id: 3,
+                title: "APODERADOS",
+                description: "Funciones, derechos y obligaciones de los apoderados. Cómo actuar durante la jornada.",
+                videoId: "1159614046",
+                duration: "04:26"
+            },
+            {
+                id: 4,
+                title: "CONSTITUCIÓN DE MESA Y VOTACIÓN",
+                description: "Proceso de constitución de la mesa, acreditación de votantes y resolución de incidencias durante la votación.",
+                videoId: "1159618067",
+                duration: "05:30"
+            },
+            {
+                id: 5,
+                title: "ESCRUTINIO",
+                description: "El momento clave: apertura de urnas, conteo de votos, votos nulos vs blancos, y redacción de actas.",
+                videoId: "1159619505",
+                duration: "11:16"
+            },
+            {
+                id: 6,
+                title: "CONSEJOS FINALES",
+                description: "Recomendaciones y consejos finales para el día de las elecciones.",
+                videoId: "1159622576",
+                duration: "05:35"
+            },
+            {
+                id: 7,
+                title: "SCRUTINIA - USO DE LA APP",
+                description: "Tutorial detallado sobre cómo utilizar la app Scrutinia para reportar datos.",
+                videoId: null,
+                status: "coming_soon",
+                duration: "-"
+            }
+        ];
+
+        // State
+        let currentModuleId = 0;
+
+        // Elements
+        const moduleListEl = document.getElementById('moduleList');
+        const mobileModuleListEl = document.getElementById('mobileModuleList');
+        const playerIframe = document.getElementById('vimeoPlayer');
+        const emptyState = document.getElementById('emptyState');
+        const videoTitleEl = document.getElementById('videoTitle');
+        const videoDescEl = document.getElementById('videoDescription');
+        const menuToggle = document.getElementById('menuToggle');
+        const closeDrawer = document.getElementById('closeDrawer');
+        const mobileDrawer = document.getElementById('mobileDrawer');
+        const mobileCurrentTitle = document.getElementById('mobileCurrentTitle');
+
+        // Init
+        function init() {
+            renderModules();
+            loadModule(modules[0]);
+            lucide.createIcons();
+        }
+
+        // Render Sidebar
+        function renderModules() {
+            const createItem = (module) => {
+                const isComingSoon = module.status === 'coming_soon';
+                const div = document.createElement('div');
+                div.className = `group flex items-center gap-4 p-4 cursor-pointer transition-colors hover:bg-slate-800/50 ${currentModuleId === module.id ? 'active-module' : 'text-slate-400'}`;
+                
+                if (isComingSoon) {
+                    div.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    div.onclick = () => {
+                        loadModule(module);
+                        closeMobileDrawer();
+                    };
+                }
+
+                div.innerHTML = `
+                    <div class="flex-none w-8 h-8 rounded-full flex items-center justify-center border ${currentModuleId === module.id ? 'border-cyan-500 text-cyan-500 bg-cyan-500/10' : 'border-slate-700 bg-slate-800 text-slate-500'} text-xs font-bold">
+                        ${module.id}
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold ${currentModuleId === module.id ? 'text-white' : 'text-slate-300 group-hover:text-slate-200'}">
+                            ${module.title}
+                        </h4>
+                        <span class="text-xs text-slate-500 mt-1 block flex items-center gap-1">
+                            ${isComingSoon ? 'PRÓXIMAMENTE' : `<i data-lucide="play-circle" class="w-3 h-3"></i> ${module.duration}`}
+                        </span>
+                    </div>
+                `;
+                return div;
+            };
+
+            moduleListEl.innerHTML = '';
+            mobileModuleListEl.innerHTML = '';
+
+            modules.forEach(m => {
+                moduleListEl.appendChild(createItem(m));
+                // Clone for mobile because onclick needs to close drawer
+                mobileModuleListEl.appendChild(createItem(m));
+            });
+            
+            // Re-run lucide icons for inserted elements
+            lucide.createIcons();
+        }
+
+        // Load Video
+        function loadModule(module) {
+            if (module.status === 'coming_soon') return;
+
+            currentModuleId = module.id;
+            
+            // Update UI Active States
+            renderModules(); // Re-render to update active styling
+
+            // Update Content
+            videoTitleEl.textContent = module.title;
+            videoDescEl.textContent = module.description;
+            mobileCurrentTitle.textContent = module.title;
+
+            if (module.videoId) {
+                playerIframe.src = `https://player.vimeo.com/video/${module.videoId}?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&playsinline=0`;
+                playerIframe.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+            } else {
+                playerIframe.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            }
+        }
+
+        // Mobile Drawer Logic
+        function openMobileDrawer() {
+            mobileDrawer.classList.remove('translate-x-full');
+        }
+
+        function closeMobileDrawer() {
+            mobileDrawer.classList.add('translate-x-full');
+        }
+
+        menuToggle.addEventListener('click', openMobileDrawer);
+        closeDrawer.addEventListener('click', closeMobileDrawer);
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
