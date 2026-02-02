@@ -4,8 +4,8 @@ node_modules/
 .pnp.js
 
 # Next.js
-scrutinia-nextjs/.next/
-scrutinia-nextjs/out/
+.next/
+out/
 
 # Production
 build/
@@ -17,7 +17,9 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
-scrutinia-nextjs/.env.local
+
+# Legacy folder
+scrutinia-nextjs/
 
 # Debug
 npm-debug.log*

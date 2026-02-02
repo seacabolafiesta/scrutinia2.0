@@ -1,113 +1,36 @@
-# Scrutinia - Sistema de Escrutinio Electoral Aragón 2026
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Sistema de escrutinio ciudadano paralelo para las elecciones autonómicas de Aragón 2026.
+## Getting Started
 
-## 🗳️ Descripción
-
-Scrutinia es una plataforma que permite el seguimiento en tiempo real de los resultados electorales mediante:
-- **Transcripción automática de actas** con IA
-- **Dashboard de resultados** con hemiciclo interactivo
-- **Cálculo de escaños** con algoritmo D'Hondt
-- **Pactómetro** para simulación de coaliciones
-
-## 🏗️ Estructura del Proyecto
-
-```
-Scrutinia/
-├── scrutinia-nextjs/      # Aplicación Next.js (Frontend + API)
-│   ├── src/
-│   │   ├── app/           # Rutas de la aplicación
-│   │   ├── components/    # Componentes React
-│   │   ├── lib/           # Lógica de negocio
-│   │   └── hooks/         # Custom hooks (Realtime)
-│   └── ...
-├── public/                # Archivos estáticos legacy
-├── database_schema.sql    # Schema de Supabase
-├── SUPABASE.MD           # Documentación de la base de datos
-└── PROJECT_PLAN.md       # Plan del proyecto
-```
-
-## 🛠️ Stack Tecnológico
-
-- **Frontend:** Next.js 16, React 19, TypeScript
-- **Estilos:** Tailwind CSS v4
-- **Base de datos:** Supabase (PostgreSQL)
-- **Realtime:** Supabase Realtime
-- **Iconos:** Lucide React
-
-## 🚀 Instalación
+First, run the development server:
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/TU_USUARIO/scrutinia.git
-cd scrutinia
-
-# Instalar dependencias
-cd scrutinia-nextjs
-npm install
-
-# Configurar variables de entorno
-cp .env.example .env.local
-# Editar .env.local con tus credenciales de Supabase
-
-# Iniciar servidor de desarrollo
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## ⚙️ Variables de Entorno
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Crea un archivo `.env.local` en `scrutinia-nextjs/`:
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=tu_url_de_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
-```
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## 📊 Base de Datos
+## Learn More
 
-El schema de Supabase incluye las siguientes tablas:
-- `partidos` - Tabla maestra de partidos políticos
-- `mesas` - Mesas electorales del censo
-- `actas` - Actas escrutadas (formato JSON v6)
-- `detalle_votos` - Desglose de votos por partido
-- `candidaturas_unmapped` - Partidos no mapeados
-- `resultados_publicos` - Agregados para dashboard
+To learn more about Next.js, take a look at the following resources:
 
-Ver [SUPABASE.MD](./SUPABASE.MD) para documentación detallada.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## 🗺️ Rutas
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-| Ruta | Descripción |
-|------|-------------|
-| `/` | Landing page |
-| `/campus` | Campus virtual de formación |
-| `/escrutinio` | Dashboard de resultados |
+## Deploy on Vercel
 
-## 📈 Funcionalidades
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-### Dashboard de Escrutinio
-- Hemiciclo interactivo con distribución de escaños
-- Tabla de resultados por partido
-- Filtros por provincia y municipio
-- Actualización en tiempo real
-
-### Algoritmo D'Hondt
-- Cálculo automático de escaños
-- Barrera electoral del 3%
-- Soporte para las 3 provincias de Aragón
-
-### Pactómetro
-- Simulación de coaliciones
-- Indicador de mayoría absoluta (34 escaños)
-
-## 🤝 SALF - Sistema Aragonés de Libertad y Futuro
-
-Este proyecto da representación significativa a SALF en las simulaciones.
-
-## 📝 Licencia
-
-MIT License
-
----
-
-Desarrollado para las elecciones autonómicas de Aragón 2026.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
