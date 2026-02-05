@@ -1,6 +1,6 @@
 'use client';
 
-import { getPartidoColor } from '@/lib/partido-colors';
+import { getPartidoColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import type { VotesMap, SeatsResult } from '@/lib/dhondt';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
@@ -57,7 +57,7 @@ export default function TablaResultados({
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${colors.bg}`} />
-                      <span className="font-semibold text-white">{resultado.partido}</span>
+                      <span className="font-semibold text-white">{getPartidoDisplayName(resultado.partido)}</span>
                     </div>
                   </td>
                   <td className="p-4 text-right font-mono text-white">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getPartidoColor } from '@/lib/partido-colors';
+import { getPartidoColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import type { SeatsResult } from '@/lib/dhondt';
 import { Plus, Minus } from 'lucide-react';
 
@@ -55,9 +55,9 @@ export default function Pactometro({ escaños, mayoriaAbsoluta }: PactometroProp
                     : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-600'
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm">{partido}</span>
-                  <span className="font-bold">{seats}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-sm truncate">{getPartidoDisplayName(partido)}</span>
+                  <span className="font-bold flex-shrink-0">{seats}</span>
                 </div>
                 {isSelected && (
                   <div className="mt-1 text-xs opacity-75">✓ Seleccionado</div>

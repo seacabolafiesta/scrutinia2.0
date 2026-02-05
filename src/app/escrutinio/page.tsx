@@ -17,15 +17,17 @@ export default function EscrutinioPage() {
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'ARAGON'>('ARAGON');
   const [ultimaActualizacion, setUltimaActualizacion] = useState<Date>(new Date());
 
-  const { resultados, isLoading } = useRealtimeScrutiny(
+  const { resultados, estadisticas, isLoading } = useRealtimeScrutiny(
     provinciaSeleccionada !== 'ARAGON' ? provinciaSeleccionada : undefined
   );
 
   useEffect(() => {
-    if (resultados.length > 0) {
+    if (estadisticas.ultima_actualizacion) {
+      setUltimaActualizacion(new Date(estadisticas.ultima_actualizacion));
+    } else if (resultados.length > 0) {
       setUltimaActualizacion(new Date());
     }
-  }, [resultados]);
+  }, [resultados, estadisticas.ultima_actualizacion]);
 
   const votosMap: { [partido: string]: number } = {};
   resultados.forEach((r) => {
@@ -40,10 +42,10 @@ export default function EscrutinioPage() {
   const porcentajes = calculatePercentages(votosMap);
 
   const totalVotos = Object.values(votosMap).reduce((sum, v) => sum + v, 0);
-  const actasEscrutadas = resultados.length > 0 ? 1 : 0;
   const totalMesas = 1487;
+  const actasEscrutadas = estadisticas.actas_escrutadas;
   const porcentajeEscrutado = (actasEscrutadas / totalMesas) * 100;
-  const participacion = 0;
+  const participacion = estadisticas.participacion;
 
   const mayoriaAbsoluta = Math.floor(totalEscaños / 2) + 1;
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { getPartidoColor } from '@/lib/partido-colors';
+import { getPartidoColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import type { SeatsResult } from '@/lib/dhondt';
 
 interface HemicicloProps {
@@ -47,7 +47,7 @@ export default function Hemiciclo({ escaños, totalEscaños }: HemicicloProps) {
                   <div
                     key={`${seat.partido}-${idx}`}
                     className={`w-3 h-3 rounded-full ${colors.bg} hover:scale-150 transition-transform cursor-pointer`}
-                    title={`${seat.partido} - Escaño ${seat.index + 1}`}
+                    title={`${getPartidoDisplayName(seat.partido)} - Escaño ${seat.index + 1}`}
                   />
                 );
               })}
@@ -56,14 +56,15 @@ export default function Hemiciclo({ escaños, totalEscaños }: HemicicloProps) {
         })}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
         {partidosOrdenados.map(([partido, count]) => {
           const colors = getPartidoColor(partido);
           return (
-            <div key={partido} className="flex items-center gap-2">
-              <div className={`w-4 h-4 rounded-full ${colors.bg}`} />
-              <span className="text-sm text-slate-300">
-                <span className="font-bold text-white">{partido}</span>: {count}
+            <div key={partido} className="flex items-center gap-2 min-w-0">
+              <div className={`w-3 h-3 rounded-full flex-shrink-0 ${colors.bg}`} />
+              <span className="text-slate-300 truncate">
+                <span className="font-semibold text-white">{getPartidoDisplayName(partido)}</span>
+                <span className="text-slate-400 ml-1">{count}</span>
               </span>
             </div>
           );
