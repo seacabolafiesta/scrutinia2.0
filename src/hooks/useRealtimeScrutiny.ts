@@ -14,7 +14,7 @@ export function useRealtimeScrutiny(provincia?: string) {
   useEffect(() => {
     const fetchInitialData = async () => {
       let query = supabase
-        .from('resultados_publicos')
+        .from('resultados_escrutinio')
         .select('*')
         .order('votos_totales', { ascending: false });
 
@@ -35,26 +35,29 @@ export function useRealtimeScrutiny(provincia?: string) {
     fetchInitialData();
 
     const channel = supabase
-      .channel('resultados-changes')
+      .channel('scrutinia-votes-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'resultados_publicos',
-          filter: provincia ? `provincia=eq.${provincia}` : undefined
+          table: 'scrutinia_acta_votes'
         },
-        (payload) => {
-          console.log('Realtime update:', payload);
+        async () => {
+          console.log('Realtime update: refetching resultados_escrutinio');
+          // Refetch desde la vista cuando hay cambios en votos
+          let query = supabase
+            .from('resultados_escrutinio')
+            .select('*')
+            .order('votos_totales', { ascending: false });
           
-          if (payload.eventType === 'INSERT') {
-            setResultados((prev) => [...prev, payload.new as ResultadoPublico]);
-          } else if (payload.eventType === 'UPDATE') {
-            setResultados((prev) =>
-              prev.map((r) => (r.id === payload.new.id ? payload.new as ResultadoPublico : r))
-            );
-          } else if (payload.eventType === 'DELETE') {
-            setResultados((prev) => prev.filter((r) => r.id !== payload.old.id));
+          if (provincia) {
+            query = query.eq('provincia', provincia);
+          }
+          
+          const { data } = await query;
+          if (data) {
+            setResultados(data as ResultadoPublico[]);
           }
         }
       )
