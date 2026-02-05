@@ -14,17 +14,29 @@ export interface DHondtStep {
   escaño: number;
 }
 
+/**
+ * Implementación del sistema D'Hondt según LOREG Art. 163
+ * 
+ * @param votes - Votos por candidatura
+ * @param totalSeats - Escaños a repartir
+ * @param barrera - Barrera electoral (ej: 0.03 = 3%)
+ * @param votosBlanco - Votos en blanco (se suman para calcular barrera, Art. 163.1.a)
+ */
 export function calculateDHondt(
   votes: VotesMap,
   totalSeats: number,
-  barrera: number = 0.03
+  barrera: number = 0.03,
+  votosBlanco: number = 0
 ): { seats: SeatsResult; steps: DHondtStep[] } {
-  const totalVotosValidos = Object.values(votes).reduce((sum, v) => sum + v, 0);
+  // Art. 163.1.a LOREG: votos válidos = votos candidaturas + votos en blanco
+  const votosCandidaturas = Object.values(votes).reduce((sum, v) => sum + v, 0);
+  const totalVotosValidos = votosCandidaturas + votosBlanco;
   
   if (totalVotosValidos === 0) {
     return { seats: {}, steps: [] };
   }
 
+  // Barrera electoral sobre votos válidos totales
   const minimoVotos = totalVotosValidos * barrera;
   
   const partidosValidos = Object.entries(votes).filter(
@@ -52,14 +64,19 @@ export function calculateDHondt(
       cocientes.push({ partido, votos, divisor, cociente });
     });
 
+    // Art. 163.1.d LOREG: ordenar por cociente, luego por votos totales, luego sorteo
     cocientes.sort((a, b) => {
+      // Primero: mayor cociente gana
       if (b.cociente !== a.cociente) {
         return b.cociente - a.cociente;
       }
+      // Segundo: si empate en cociente, gana el de más votos totales
       if (b.votos !== a.votos) {
         return b.votos - a.votos;
       }
-      return a.partido.localeCompare(b.partido);
+      // Tercero: si empate también en votos, sorteo (aleatorio)
+      // En producción real esto debería ser un sorteo oficial supervisado
+      return Math.random() - 0.5;
     });
 
     const ganador = cocientes[0];
