@@ -34,7 +34,7 @@ export function useRealtimeScrutiny(provincia?: string) {
       .order('votos_totales', { ascending: false });
 
     if (provincia) {
-      query = query.eq('provincia', provincia);
+      query = query.eq('provincia', provincia.toUpperCase());
     }
 
     const { data, error } = await query;
@@ -46,7 +46,7 @@ export function useRealtimeScrutiny(provincia?: string) {
     }
 
     // Fetch estadisticas
-    const provinciaQuery = provincia || 'ARAGON';
+    const provinciaQuery = provincia ? provincia.toUpperCase() : 'ARAGON';
     const { data: stats } = await supabase
       .from('estadisticas_escrutinio')
       .select('*')

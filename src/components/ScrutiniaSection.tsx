@@ -23,7 +23,18 @@ export default function ScrutiniaSection() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 relative overflow-hidden mb-16">
+            <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+            <div className="relative z-10">
+              <h3 className="text-2xl font-bold text-white mb-2 text-center">Escrutinio Ciudadano en Directo</h3>
+              <p className="text-slate-400 mb-8 text-center">
+                Composición del hemiciclo según las actas procesadas por IA.
+              </p>
+              <HemicicloPreview />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-2xl text-center group hover:border-blue-500/50 transition-all">
               <div className="w-16 h-16 bg-slate-800 rounded-2xl mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Camera className="w-8 h-8 text-blue-400" />
@@ -46,17 +57,6 @@ export default function ScrutiniaSection() {
               </div>
               <h3 className="text-xl font-bold text-white mb-3">3. Resultados en Directo</h3>
               <p className="text-slate-400">Publicación inmediata en scrutinia.com. Código abierto y repositorio público de actas.</p>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 relative overflow-hidden">
-            <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-            <div className="relative z-10">
-              <h3 className="text-2xl font-bold text-white mb-2 text-center">Escrutinio Ciudadano en Directo</h3>
-              <p className="text-slate-400 mb-8 text-center">
-                Composición del hemiciclo según las actas procesadas por IA.
-              </p>
-              <HemicicloPreview />
             </div>
           </div>
         </div>

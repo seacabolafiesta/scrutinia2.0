@@ -13,8 +13,8 @@ export default function Home() {
       <WelcomePopup />
       <Navbar />
       <Hero />
-      <AsesorSection />
       <ScrutiniaSection />
+      <AsesorSection />
       <Footer />
     </>
   );
