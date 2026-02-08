@@ -1,3 +1,4 @@
+// Scrutinia v2.0 - Control Electoral Ciudadano
 import type { Metadata } from "next";
 import "./globals.css";
 
