@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 
@@ -14,88 +14,99 @@ interface EstadisticasEscrutinio {
   ultima_actualizacion: string | null;
 }
 
+const defaultStats: EstadisticasEscrutinio = {
+  actas_escrutadas: 0,
+  total_votantes: 0,
+  total_censo: 0,
+  participacion: 0,
+  ultima_actualizacion: null,
+};
+
 export function useRealtimeScrutiny(provincia?: string) {
   const [resultados, setResultados] = useState<ResultadoPublico[]>([]);
-  const [estadisticas, setEstadisticas] = useState<EstadisticasEscrutinio>({
-    actas_escrutadas: 0,
-    total_votantes: 0,
-    total_censo: 0,
-    participacion: 0,
-    ultima_actualizacion: null
-  });
+  const [estadisticas, setEstadisticas] = useState<EstadisticasEscrutinio>(defaultStats);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  const fetchData = async () => {
-    // Fetch resultados
-    let query = supabase
+  const fetchData = useCallback(async () => {
+    const provinciaUpper = provincia?.toUpperCase();
+
+    // Run both queries in PARALLEL
+    const resultadosQuery = supabase
       .from('resultados_escrutinio')
       .select('*')
       .order('votos_totales', { ascending: false });
 
-    if (provincia) {
-      query = query.eq('provincia', provincia.toUpperCase());
+    if (provinciaUpper) {
+      resultadosQuery.eq('provincia', provinciaUpper);
     }
 
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('Error fetching resultados:', error);
-    } else {
-      setResultados(data || []);
-    }
-
-    // Fetch estadisticas
-    const provinciaQuery = provincia ? provincia.toUpperCase() : 'ARAGON';
-    const { data: stats } = await supabase
+    const statsQuery = supabase
       .from('estadisticas_escrutinio')
       .select('*')
-      .eq('provincia', provinciaQuery)
-      .single();
+      .eq('provincia', provinciaUpper || 'ARAGON')
+      .maybeSingle();
 
-    if (stats) {
-      setEstadisticas({
-        actas_escrutadas: stats.actas_escrutadas || 0,
-        total_votantes: stats.total_votantes || 0,
-        total_censo: stats.total_censo || 0,
-        participacion: parseFloat(stats.participacion) || 0,
-        ultima_actualizacion: stats.ultima_actualizacion
-      });
+    const [resultadosRes, statsRes] = await Promise.all([resultadosQuery, statsQuery]);
+
+    if (resultadosRes.error) {
+      console.error('Error fetching resultados:', resultadosRes.error);
+    } else {
+      setResultados(resultadosRes.data || []);
     }
-  };
+
+    if (statsRes.data) {
+      setEstadisticas({
+        actas_escrutadas: statsRes.data.actas_escrutadas || 0,
+        total_votantes: statsRes.data.total_votantes || 0,
+        total_censo: statsRes.data.total_censo || 0,
+        participacion: parseFloat(statsRes.data.participacion) || 0,
+        ultima_actualizacion: statsRes.data.ultima_actualizacion,
+      });
+    } else {
+      setEstadisticas(defaultStats);
+    }
+  }, [supabase, provincia]);
 
   useEffect(() => {
-    const fetchInitialData = async () => {
+    let mounted = true;
+
+    const init = async () => {
+      setIsLoading(true);
       await fetchData();
-      setIsLoading(false);
+      if (mounted) setIsLoading(false);
     };
 
-    fetchInitialData();
+    init();
 
+    // Clean up previous channel
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
+    const channelName = `scrutinia-${provincia || 'all'}-${Date.now()}`;
     const channel = supabase
-      .channel('scrutinia-changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'scrutinia_acta_votes' },
-        () => {
-          console.log('Realtime: votes changed');
-          fetchData();
-        }
+        () => fetchData()
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'scrutinia_actas' },
-        () => {
-          console.log('Realtime: actas changed');
-          fetchData();
-        }
+        () => fetchData()
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
+      mounted = false;
       supabase.removeChannel(channel);
     };
-  }, [provincia, supabase]);
+  }, [provincia, fetchData, supabase]);
 
   return { resultados, estadisticas, isLoading };
 }
