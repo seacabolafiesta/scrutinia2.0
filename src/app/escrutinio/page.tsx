@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileText } from 'lucide-react';
 import HeaderEstado from '@/components/escrutinio/HeaderEstado';
 import Hemiciclo from '@/components/escrutinio/Hemiciclo';
 import TablaResultados from '@/components/escrutinio/TablaResultados';
@@ -113,6 +113,17 @@ export default function EscrutinioPage() {
           escaños={seats}
           showEscaños={provinciaSeleccionada !== 'ARAGON'}
         />
+
+        <Link
+          href="/escrutinio/actas"
+          className="mt-8 flex items-center justify-center gap-3 p-6 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-cyan-500/50 transition-colors group"
+        >
+          <FileText className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+          <div>
+            <p className="text-white font-bold">Repositorio de Actas</p>
+            <p className="text-slate-400 text-sm">Consulta votos por mesa y descarga las actas escaneadas</p>
+          </div>
+        </Link>
 
         {totalVotos === 0 && (
           <div className="mt-8 p-8 bg-slate-900/50 border border-slate-800 rounded-xl text-center">
