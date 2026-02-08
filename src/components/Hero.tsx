@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Bot, GraduationCap } from 'lucide-react';
+import { Bot, GraduationCap, MessageCircle, Send } from 'lucide-react';
 import HemicicloPreview from '@/components/HemicicloPreview';
 
 export default function Hero() {
@@ -26,14 +26,25 @@ export default function Hero() {
           <p className="text-slate-400 mb-8 max-w-2xl mx-auto text-sm md:text-base">
             IA contra el fraude electoral. <strong className="text-white">Asesoramiento legal 24h</strong> y <strong className="text-white">escrutinio ciudadano</strong> verificado.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="#asesor" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-950 font-bold rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
-              <Bot className="w-5 h-5" />
-              Hablar con Asesor IA
+          <p className="text-white font-bold text-lg mb-3">Envía tu acta electoral</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+            <a href="https://wa.me/34711209894" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 bg-[#25D366] hover:bg-[#1ebe57] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
+              <MessageCircle className="w-5 h-5" />
+              WhatsApp
             </a>
-            <Link href="/campus" className="w-full sm:w-auto px-8 py-4 bg-slate-900 border border-slate-700 text-white font-bold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
-              <GraduationCap className="w-5 h-5" />
-              Formación Ciudadana
+            <a href="https://t.me/scrutinia2_bot" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
+              <Send className="w-5 h-5" />
+              Telegram
+            </a>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="#asesor" className="w-full sm:w-auto px-6 py-3 bg-white text-slate-950 font-bold rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2 text-sm">
+              <Bot className="w-4 h-4" />
+              Asesor IA
+            </a>
+            <Link href="/campus" className="w-full sm:w-auto px-6 py-3 bg-slate-900 border border-slate-700 text-white font-bold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm">
+              <GraduationCap className="w-4 h-4" />
+              Campus
             </Link>
           </div>
         </div>

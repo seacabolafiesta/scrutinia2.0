@@ -42,7 +42,7 @@ export default function EscrutinioPage() {
   const porcentajes = calculatePercentages(votosMap);
 
   const totalVotos = Object.values(votosMap).reduce((sum, v) => sum + v, 0);
-  const totalMesas = 1487;
+  const totalMesas = 2213;
   const actasEscrutadas = estadisticas.actas_escrutadas;
   const porcentajeEscrutado = (actasEscrutadas / totalMesas) * 100;
   const participacion = estadisticas.participacion;
