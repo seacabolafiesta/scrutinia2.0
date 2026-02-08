@@ -38,11 +38,11 @@ export function useActasBrowser() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch provincias on mount
+  // Fetch provincias on mount from mesas table
   useEffect(() => {
     (async () => {
       const { data } = await supabase
-        .from('scrutinia_actas')
+        .from('mesas')
         .select('provincia')
         .not('provincia', 'is', null)
         .order('provincia');
@@ -68,7 +68,7 @@ export function useActasBrowser() {
 
     (async () => {
       const { data } = await supabase
-        .from('scrutinia_actas')
+        .from('mesas')
         .select('municipio')
         .eq('provincia', provinciaSel)
         .not('municipio', 'is', null)
@@ -94,8 +94,8 @@ export function useActasBrowser() {
     (async () => {
       setIsLoading(true);
       let query = supabase
-        .from('scrutinia_actas')
-        .select('id, acta_key, provincia, municipio, distrito_censal, seccion, mesa, votantes_total, censo_total_electores, votos_nulos, votos_blanco')
+        .from('mesas')
+        .select('id, provincia, municipio, distrito_censal, seccion, mesa, votantes_total, censo_total_electores')
         .eq('provincia', provinciaSel)
         .order('municipio')
         .order('distrito_censal')
@@ -107,52 +107,89 @@ export function useActasBrowser() {
       }
 
       const { data } = await query;
-      setMesas((data as ActaResumen[]) || []);
+      setMesas((data || []).map((m: any) => ({
+        ...m,
+        acta_key: '',
+        votos_nulos: 0,
+        votos_blanco: 0,
+      })) as ActaResumen[]);
       setIsLoading(false);
     })();
   }, [provinciaSel, municipioSel]);
 
   // Fetch detalle when mesa is selected
-  const selectMesa = useCallback(async (actaId: string) => {
-    setMesaSel(actaId);
-    if (!actaId) {
+  const selectMesa = useCallback(async (mesaId: string) => {
+    setMesaSel(mesaId);
+    if (!mesaId) {
       setActaDetalle(null);
       return;
     }
 
     setIsLoading(true);
 
-    // Fetch acta info
-    const { data: acta } = await supabase
-      .from('scrutinia_actas')
-      .select('id, acta_key, provincia, municipio, distrito_censal, seccion, mesa, votantes_total, censo_total_electores, votos_nulos, votos_blanco')
-      .eq('id', actaId)
+    // Fetch mesa info from mesas table
+    const { data: mesa } = await supabase
+      .from('mesas')
+      .select('id, provincia, municipio, distrito_censal, seccion, mesa, votantes_total, censo_total_electores')
+      .eq('id', mesaId)
       .single();
 
-    if (!acta) {
+    if (!mesa) {
       setIsLoading(false);
       return;
     }
 
-    // Fetch votes
-    const { data: votos } = await supabase
-      .from('scrutinia_acta_votes')
-      .select('party_id, votos')
-      .eq('acta_id', actaId)
-      .order('votos', { ascending: false });
+    // Build acta_key from mesa fields
+    const actaKey = `${mesa.provincia}|${mesa.municipio}|${mesa.distrito_censal}|${mesa.seccion}|${mesa.mesa}`;
 
-    // Build storage URL from acta_key
-    const fileName = acta.acta_key.replace(/\|/g, '_') + '.jpg';
-    const { data: urlData } = supabase.storage
-      .from(BUCKET_NAME)
-      .getPublicUrl(fileName);
+    // Try to find matching acta in scrutinia_actas
+    const { data: acta } = await supabase
+      .from('scrutinia_actas')
+      .select('id, votantes_total, votos_nulos, votos_blanco')
+      .eq('acta_key', actaKey)
+      .maybeSingle();
 
-    // Check if file actually exists by trying a HEAD-like call
-    let actaUrl: string | null = urlData?.publicUrl || null;
+    let votos: { party_id: string; votos: number }[] = [];
+    let actaUrl: string | null = null;
+    let votosNulos = 0;
+    let votosBlanco = 0;
+    let votantesTotal = mesa.votantes_total || 0;
+
+    if (acta) {
+      votosNulos = acta.votos_nulos || 0;
+      votosBlanco = acta.votos_blanco || 0;
+      votantesTotal = acta.votantes_total || votantesTotal;
+
+      // Fetch votes
+      const { data: votosData } = await supabase
+        .from('scrutinia_acta_votes')
+        .select('party_id, votos')
+        .eq('acta_id', acta.id)
+        .order('votos', { ascending: false });
+
+      votos = (votosData as { party_id: string; votos: number }[]) || [];
+
+      // Build storage URL
+      const fileName = actaKey.replace(/\|/g, '_') + '.jpg';
+      const { data: urlData } = supabase.storage
+        .from(BUCKET_NAME)
+        .getPublicUrl(fileName);
+      actaUrl = urlData?.publicUrl || null;
+    }
 
     setActaDetalle({
-      ...(acta as ActaResumen),
-      votos: (votos as { party_id: string; votos: number }[]) || [],
+      id: mesa.id,
+      acta_key: actaKey,
+      provincia: mesa.provincia,
+      municipio: mesa.municipio,
+      distrito_censal: mesa.distrito_censal,
+      seccion: mesa.seccion,
+      mesa: mesa.mesa,
+      votantes_total: votantesTotal,
+      censo_total_electores: mesa.censo_total_electores,
+      votos_nulos: votosNulos,
+      votos_blanco: votosBlanco,
+      votos,
       actaUrl,
     });
 
