@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Bot, GraduationCap } from 'lucide-react';
+import HemicicloPreview from '@/components/HemicicloPreview';
 
 export default function Hero() {
   return (
@@ -42,7 +43,13 @@ export default function Hero() {
           <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed font-light">
             La tecnología al servicio de la democracia. Un sistema integral de <strong className="text-white">asesoramiento legal 24h</strong> y <strong className="text-white">escrutinio ciudadano</strong> verificado.
           </p>
+        </div>
 
+        <div className="max-w-4xl mx-auto w-full mb-12">
+          <HemicicloPreview />
+        </div>
+
+        <div className="text-center">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <a href="#asesor" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-950 font-bold rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
               <Bot className="w-5 h-5" />

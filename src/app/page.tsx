@@ -5,12 +5,10 @@ import Hero from '@/components/Hero';
 import AsesorSection from '@/components/AsesorSection';
 import ScrutiniaSection from '@/components/ScrutiniaSection';
 import Footer from '@/components/Footer';
-import WelcomePopup from '@/components/WelcomePopup';
 
 export default function Home() {
   return (
     <>
-      <WelcomePopup />
       <Navbar />
       <Hero />
       <ScrutiniaSection />
