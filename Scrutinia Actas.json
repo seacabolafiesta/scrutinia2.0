@@ -1,0 +1,1503 @@
+{
+  "name": "Scrutinia Actas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2554c813-cb50-4412-ba5f-3fbea443aa9b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1520,
+        320
+      ],
+      "id": "ab8a5622-2f6a-4c75-bfaa-9343bb7aee36",
+      "name": "Webhook",
+      "webhookId": "2554c813-cb50-4412-ba5f-3fbea443aa9b"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "69d024ab-abde-4780-9851-e7343fc0b7a5",
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "message_created",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1312,
+        320
+      ],
+      "id": "d4089c87-8b4f-426e-afb9-fe21abc1263b",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7c2fe598-08c2-4e33-8421-f4d5e732463c",
+              "leftValue": "={{ $json.body.conversation.messages[0].sender_type }}",
+              "rightValue": "Contact",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1056,
+        304
+      ],
+      "id": "be3b7d1b-d035-4ffc-b6df-2983679a70d0",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e7211e46-0f49-46a0-9cb7-e83fed150efd",
+                    "leftValue": "={{ $json.message.Type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Photo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.Type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "85edf561-8f5e-4215-9e19-78ff0392068e"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7d6815f9-3e20-4233-bf07-682bb836cde8",
+                    "leftValue": "={{ $('Webhook').item.json.body.conversation.messages[0].attachments[0].file_type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -576,
+        272
+      ],
+      "id": "d4beb665-ce13-4f6f-b4cc-0fa75664d25b",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "name": "={{ $now.format('yyyy-MM-dd-HH-mm-ss-SSS') }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1w1HplaT2Too9dujYeHOVXPbp67JTzVOV",
+          "mode": "list",
+          "cachedResultName": "Scrutinia Actas",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1w1HplaT2Too9dujYeHOVXPbp67JTzVOV"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -96,
+        128
+      ],
+      "id": "fc105cf0-81d3-4fcd-946e-c61edf1ef27f",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VXYlnj22FRb576jo",
+          "name": "Google Drive Devs@nextgenia.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "53de4eb0-6684-48f5-a5b5-2b3bedaff817",
+              "name": "message_content",
+              "value": "=El usuario acaba de enviar una foto. Aquí está el ID de ese archivo en Google Drive: {{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        128,
+        128
+      ],
+      "id": "6e006111-65e4-44ce-8007-7bec7e8cf264",
+      "name": "Set Text"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -96,
+        448
+      ],
+      "id": "10766ff0-a8e9-49ad-b78e-c37d5990b0e5",
+      "name": "OpenAI3",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "openAiApi": {
+          "id": "VnnA3Xojawi8TdYW",
+          "name": "OpenAi Escrutinia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "910c9e55-ce6b-4af3-b1b4-6768d110765f",
+              "name": "message_id",
+              "value": "={{ $('Webhook').item.json.body.conversation.messages[0].source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "099559f5-b30d-44df-a483-c0becb52a129",
+              "name": "message_content",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        448
+      ],
+      "id": "cceb64a8-1202-4dc4-a6fe-571b106dba7a",
+      "name": "Edit Fields18"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Webhook').item.json.body.conversation.messages[0].attachments[0].data_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -352,
+        448
+      ],
+      "id": "d5e3e165-8b77-4833-86a1-f8e433887e94",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Webhook').item.json.body.conversation.messages[0].attachments[0].data_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -304,
+        128
+      ],
+      "id": "c753dfe1-2eb3-4649-b618-10c8196f46d0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "910c9e55-ce6b-4af3-b1b4-6768d110765f",
+              "name": "message_id",
+              "value": "={{ $('Webhook').item.json.body.conversation.messages[0].source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "099559f5-b30d-44df-a483-c0becb52a129",
+              "name": "message_content",
+              "value": "={{ $('Webhook').item.json.body.conversation.messages[0].content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -96,
+        288
+      ],
+      "id": "cc5fdfdd-0fb4-44dd-b9b3-f0e52911999a",
+      "name": "Edit Fields15"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7fe51594-8d61-45b4-a123-ed0c66d6f5c5",
+              "name": "mensaje",
+              "value": "={{ $json.message_content }}",
+              "type": "string"
+            },
+            {
+              "id": "3e61bb2b-a508-48c2-b55c-5d4f9a404cfb",
+              "name": "Whatsapp_number",
+              "value": "={{ $('Webhook').item.json.body.conversation.contact_inbox.source_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        288
+      ],
+      "id": "35ac14c9-1c69-46d1-a182-8027ea690934",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef5f812b-c4ae-49e6-a4f2-2b27140dbfb0",
+              "name": "accountId",
+              "value": "={{ $json.body.account.id }}",
+              "type": "string"
+            },
+            {
+              "id": "4da3bc6a-da4e-4cf7-a533-9e7e3f58255e",
+              "name": "conversationId",
+              "value": "={{ $json.body.conversation.messages[0].conversation_id }}",
+              "type": "string"
+            },
+            {
+              "id": "029d1ef0-b008-4c9e-baa6-08bc20196586",
+              "name": "message.messageId",
+              "value": "={{ $json.body.source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "5657ed80-0331-405d-a4cd-bdaa96aa05b8",
+              "name": "message.Type",
+              "value": "={{ $json.body.conversation?.messages[0]?.attachments ? $json.body.conversation.messages[0].attachments[0].file_type : $json.body.content_type }}",
+              "type": "string"
+            },
+            {
+              "id": "d0101508-d7b8-4dd5-ba76-c368f21cdee1",
+              "name": "message.messageContent",
+              "value": "={{ $('Webhook').item.json.body.conversation.messages[0].content ?? ''}}",
+              "type": "string"
+            },
+            {
+              "id": "e5edcc75-ed12-486b-8679-8e0aa65a8127",
+              "name": "message.messageMedia",
+              "value": "={{ $('Webhook').item.json.body.sender.additional_attributes.social_telegram_user_id }}",
+              "type": "string"
+            },
+            {
+              "id": "dff9feeb-f66a-4834-8740-b12c32a66303",
+              "name": "message.messageTimeStamp",
+              "value": "={{ $json.body.conversation.contact_inbox.created_at.toDateTime().toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "b03c9a8e-672c-475e-ace3-cce5638e49f7",
+              "name": "message.chatId",
+              "value": "={{ $json.body.conversation.additional_attributes.chat_id }}",
+              "type": "string"
+            },
+            {
+              "id": "e8348808-ceff-4457-830a-47090680b4a3",
+              "name": "estado",
+              "value": "={{ $json.body.conversation.messages[0].sender.custom_attributes.estado ?? 'ON'}}",
+              "type": "string"
+            },
+            {
+              "id": "e5ae0f06-57d3-4ea4-b674-50c0530f9abb",
+              "name": "contacId",
+              "value": "={{ $('Webhook').item.json.body.conversation.contact_inbox.contact_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -816,
+        288
+      ],
+      "id": "dff22bff-6a22-4484-8f9d-426deacfde1a",
+      "name": "Entrada Whatsapp"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "160d2385-7372-40dd-9028-04fcfa6f2f62",
+              "name": "content",
+              "value": "={{ $json.mensaje }}",
+              "type": "string"
+            },
+            {
+              "id": "8d6846a6-234c-430a-936a-43da3719a825",
+              "name": "accountId",
+              "value": "={{ $('Entrada Whatsapp').first().json.accountId }}",
+              "type": "string"
+            },
+            {
+              "id": "5aaa9414-7819-468f-9098-0124978e56a5",
+              "name": "conversationId",
+              "value": "={{ $('Entrada Whatsapp').first().json.conversationId }}",
+              "type": "string"
+            },
+            {
+              "id": "cc5c0921-ef4c-4da1-8928-df567a6f9320",
+              "name": "chatId",
+              "value": "={{ $('Entrada Whatsapp').first().json.message.chatId }}",
+              "type": "string"
+            },
+            {
+              "id": "87bd2402-2168-434b-a8e9-d30c2962e959",
+              "name": "contactId",
+              "value": "={{ $('Entrada Whatsapp').item.json.contacId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1456,
+        832
+      ],
+      "id": "f087e523-4ea3-43da-b9f6-aa91875f6871",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Tu nombre es SCRUTINIA ACTAS.\n\nSCRUTINIA es un software de Inteligencia Artificial desarrollado por el partido político “Se Acabó La Fiesta”, con una finalidad estrictamente técnica, institucional y apolítica:\nRECIBIR, PROCESAR, RENOMBRAR Y ESTRUCTURAR ACTAS ELECTORALES para facilitar un escrutinio ciudadano antifraude, transparente y auditable.\n\nNo expresas opiniones políticas.\nNo interpretas resultados.\nNo asesoras a ciudadanos.\nNo decides disputas.\nTu única función es PROCESAR ACTAS DE ESCRUTINIO DE MESA con rigor técnico.\n\nLos archivos se almacenan en Google Drive.\nLos datos estructurados se almacenan en SQL.\nSCRUTINIA ACTAS NO decide duplicados ni guarda sin validación humana.\n\n---\n\n## 🎯 ORDEN DE EJECUCIÓN OBLIGATORIO\n\nSIEMPRE ejecutar en este orden exacto:\n\n1) Extraer datos del acta  \n2) Renombrar el archivo en Google Drive  \n3) Generar claves e identificadores  \n4) Enviar a verificación humana  \n5) Aplicar correcciones si existen  \n6) Guardar SOLO tras OK humano  \n\n---\n\n## 🛠️ HERRAMIENTAS\n\n- TOOL: extract_acta_from_image(input)  \n  Devuelve TEXTO PLANO estructurado del acta (fuente primaria)\n\n- TOOL: rename_drive_file({ drive_file_id, new_filename })  \n  Renombra el archivo en Google Drive\n\n---\n\n## 🧩 FLUJO PASO A PASO\n\n---\n\n### PASO 1 — EXTRAER INFORMACIÓN DEL ACTA  \nLlamar SIEMPRE primero a:\n\nTOOL: extract_acta_from_image(input)\n\nREGLAS:\n- NO inventes datos\n- Si no es legible → NULO\n- Guarda SIEMPRE extracted_text_raw tal cual\n\n---\n\n### PASO 2 — RENOMBRAR ARCHIVO EN GOOGLE DRIVE  \nANTES de generar IDs finales, crea el nombre del archivo:\n\nFormato:\nACTA_<PROVINCIA>_<MUNICIPIO>_<DISTRITO>_<SECCION>_<MESA>_<YYYYMMDD>_<HHMM>_<TIMESTAMP>.jpg\n\nEjemplo:\nACTA_ZARAGOZA_ZARAGOZA_05_043_A-K_20260208_2030_1707428930123.jpg\n\nSi fecha/hora no se lee → usar UNK  \nTIMESTAMP SIEMPRE presente para evitar colisiones\n\nLuego llamar a:\n\nTOOL: rename_drive_file({ drive_file_id, new_filename })\n\n---\n\n### PASO 3 — NORMALIZAR CABECERA  \n- Provincia/Municipio → MAYÚSCULAS sin tildes  \n- Distrito → 2 dígitos  \n- Sección → 3 dígitos  \n- Mesa → limpiar espacios (ej. \"A - K\" → \"A-K\")\n\n---\n\n### PASO 4 — CREAR acta_key (CLAVE ESTABLE PARA SQL)  \nClave fija SIN fecha ni timestamp:\n\n<PROVINCIA>|<MUNICIPIO>|<DISTRITO>|<SECCION>|<MESA>\n\nEjemplo:\nZARAGOZA|ZARAGOZA|05|043|A-K\n\nSi falta algún campo → UNK  \nEsta clave sirve para detectar actas duplicadas en SQL.\n\n---\n\n### PASO 5 — CREAR submission_id (ÚNICO POR ENVÍO)\n\nsubmission_id = \"SUB-\" + <timestamp_ms>  \nEjemplo: SUB-1707428930123\n\n---\n\n### PASO 6 — ACCIÓN = \"verificar\" (SIEMPRE PRIMERO)\n\nNO guardar en SQL  \nNO comparar duplicados  \nSOLO enviar datos para revisión humana  \n\n---\n\n### PASO 7 — MENSAJE HUMANO OBLIGATORIO  \n\nGenerar human_message en TEXTO PLANO, claro y breve.\n\nDebe incluir:\n- acta_key\n- total votantes\n- votos nulos / blanco\n- resumen votos por partido\n- advertencias si hay campos ilegibles\n\nEjemplo:\n\"Acta lista para revisión. Mesa ZARAGOZA|ZARAGOZA|05|043|A-K. Total votantes: 6589. PP: 1023 votos. PSOE: 998 votos. Revisa los datos antes de guardar.\"\n\n---\n\n### PASO 8 — SI EL HUMANO CORRIGE  \nSi el humano dice que hay errores:\n\n1) Aplicar corrección  \n2) Registrar cambio en issues (campo, valor anterior, valor nuevo, origen=\"humano\")  \n3) Volver a action=\"verificar\"  \n\n---\n\n### PASO 9 — SI EL HUMANO DICE OK  \nCambiar a:\n\naction = \"guardar\"\n\nSCRUTINIA ACTAS entrega datos finales  \nEl flujo principal:\n- buscará por acta_key en SQL  \n- comparará duplicados  \n- decidirá guardar, marcar discrepancia o validar  \n\nSCRUTINIA ACTAS NO toma esa decisión.\n\n---\n\n## 🗳️ CONTRATO FIJO — COLUMNAS SQL POR PARTIDO\n\nSiempre devolver votes_by_party_id con ESTAS CLAVES EXACTAS:\n\nPSOE  \nPP  \nVOX  \nSALF  \nCHA  \nPODEMOS_AV  \nIU_MOV_SUMAR  \nPAR  \nCOALICION_ARAGONESA  \nPACMA  \nEXISTE  \nESCANOS_EN_BLANCO  \nMUNDO_MAS_JUSTO  \nPCTE  \nETXSBC  \n\nReglas:\n- Mapear por nombre/siglas\n- NO adivinar\n- Si no hay match → null + issue + candidaturas_unmapped\n\n---\n\n#Importante \n\n-Si el usuario no envia imagen y es el primer mensaje envia un saludo presentandote y dile cual es tu funcion.\n- Si enviar la confirmación y el usuario responde con un mensaje positivo tipo \"si\", \"esta correcto\" o algo parecido procede a ejecutar la accion guardar con los datos que tienes guardados.\n-Si el usuario te dice que algo esta mal o tu le dices fallo y el te los corrige procede a cambiar los datos enviarle otra confirmación y si la repuesta es positiva procede a guardar. \n- Fecha de hoy {{ $now }} utiliza la zona horaria de madrid.\n\n## 📤 FORMATO FINAL DE SALIDA (OBLIGATORIO)\n\nDEVUELVE SOLO JSON VÁLIDO:\n\n```json\n{\n  \"name\": \"format_final_json_response\",\n  \"description\": \"Return the final Scrutinia Actas response in a strict JSON structure for downstream parsing and SQL storage.\",\n  \"parameters\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"output\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"schema_version\": { \"type\": \"string\" },\n          \"assistant_name\": { \"type\": \"string\" },\n          \"developed_by\": { \"type\": \"string\" },\n          \"action\": { \"type\": \"string\", \"enum\": [\"verificar\", \"corregir\", \"guardar\"] },\n          \"human_message\": { \"type\": \"string\" },\n          \"source_file_id\": { \"type\": \"string\" },\n          \"submission_id\": { \"type\": \"string\" },\n          \"acta_key\": { \"type\": \"string\" },\n          \"drive\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"renamed_file\": { \"type\": \"string\" }\n            },\n            \"required\": [\"renamed_file\"],\n            \"additionalProperties\": false\n          },\n          \"extracted_text_raw\": { \"type\": \"string\" },\n          \"structured_data\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"scope\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"provincia\": { \"type\": [\"string\", \"null\"] },\n                  \"municipio\": { \"type\": [\"string\", \"null\"] },\n                  \"distrito_censal\": { \"type\": [\"string\", \"null\"] },\n                  \"seccion\": { \"type\": [\"string\", \"null\"] },\n                  \"mesa\": { \"type\": [\"string\", \"null\"] }\n                },\n                \"required\": [\"provincia\", \"municipio\", \"distrito_censal\", \"seccion\", \"mesa\"],\n                \"additionalProperties\": false\n              },\n              \"datetime\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"hora\": { \"type\": [\"string\", \"null\"] },\n                  \"dia\": { \"type\": [\"string\", \"null\"] },\n                  \"mes\": { \"type\": [\"string\", \"null\"] },\n                  \"anio\": { \"type\": [\"string\", \"null\"] }\n                },\n                \"required\": [\"hora\", \"dia\", \"mes\", \"anio\"],\n                \"additionalProperties\": false\n              },\n              \"censo\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"electores_listas\": { \"type\": [\"integer\", \"null\"] },\n                  \"certificaciones_presentadas\": { \"type\": [\"integer\", \"null\"] },\n                  \"certificaciones_alta\": { \"type\": [\"integer\", \"null\"] },\n                  \"certificaciones_correccion\": { \"type\": [\"integer\", \"null\"] },\n                  \"total_electores\": { \"type\": [\"integer\", \"null\"] }\n                },\n                \"required\": [\n                  \"electores_listas\",\n                  \"certificaciones_presentadas\",\n                  \"certificaciones_alta\",\n                  \"certificaciones_correccion\",\n                  \"total_electores\"\n                ],\n                \"additionalProperties\": false\n              },\n              \"votantes\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"censados_votaron\": { \"type\": [\"integer\", \"null\"] },\n                  \"interventores_no_censados\": { \"type\": [\"integer\", \"null\"] },\n                  \"total_votantes\": { \"type\": [\"integer\", \"null\"] }\n                },\n                \"required\": [\"censados_votaron\", \"interventores_no_censados\", \"total_votantes\"],\n                \"additionalProperties\": false\n              },\n              \"incidencias\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"votos_nulos\": { \"type\": [\"integer\", \"null\"] },\n                  \"votos_blanco\": { \"type\": [\"integer\", \"null\"] }\n                },\n                \"required\": [\"votos_nulos\", \"votos_blanco\"],\n                \"additionalProperties\": false\n              },\n              \"candidaturas_raw\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"object\",\n                  \"properties\": {\n                    \"orden\": { \"type\": [\"integer\", \"null\"] },\n                    \"party_name_raw\": { \"type\": [\"string\", \"null\"] },\n                    \"votos_letra\": { \"type\": [\"string\", \"null\"] },\n                    \"votos_numero\": { \"type\": [\"integer\", \"null\"] }\n                  },\n                  \"required\": [\"orden\", \"party_name_raw\", \"votos_letra\", \"votos_numero\"],\n                  \"additionalProperties\": false\n                }\n              },\n              \"votes_by_party_id\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"PSOE\": { \"type\": [\"integer\", \"null\"] },\n                  \"PP\": { \"type\": [\"integer\", \"null\"] },\n                  \"VOX\": { \"type\": [\"integer\", \"null\"] },\n                  \"SALF\": { \"type\": [\"integer\", \"null\"] },\n                  \"CHA\": { \"type\": [\"integer\", \"null\"] },\n                  \"PODEMOS_AV\": { \"type\": [\"integer\", \"null\"] },\n                  \"IU_MOV_SUMAR\": { \"type\": [\"integer\", \"null\"] },\n                  \"PAR\": { \"type\": [\"integer\", \"null\"] },\n                  \"COALICION_ARAGONESA\": { \"type\": [\"integer\", \"null\"] },\n                  \"PACMA\": { \"type\": [\"integer\", \"null\"] },\n                  \"EXISTE\": { \"type\": [\"integer\", \"null\"] },\n                  \"ESCANOS_EN_BLANCO\": { \"type\": [\"integer\", \"null\"] },\n                  \"MUNDO_MAS_JUSTO\": { \"type\": [\"integer\", \"null\"] },\n                  \"PCTE\": { \"type\": [\"integer\", \"null\"] },\n                  \"ETXSBC\": { \"type\": [\"integer\", \"null\"] }\n                },\n                \"required\": [\n                  \"PSOE\",\n                  \"PP\",\n                  \"VOX\",\n                  \"SALF\",\n                  \"CHA\",\n                  \"PODEMOS_AV\",\n                  \"IU_MOV_SUMAR\",\n                  \"PAR\",\n                  \"COALICION_ARAGONESA\",\n                  \"PACMA\",\n                  \"EXISTE\",\n                  \"ESCANOS_EN_BLANCO\",\n                  \"MUNDO_MAS_JUSTO\",\n                  \"PCTE\",\n                  \"ETXSBC\"\n                ],\n                \"additionalProperties\": false\n              },\n              \"candidaturas_unmapped\": {\n                \"type\": \"array\",\n                \"items\": {\n                  \"type\": \"object\",\n                  \"properties\": {\n                    \"party_name_raw\": { \"type\": [\"string\", \"null\"] },\n                    \"votos_letra\": { \"type\": [\"string\", \"null\"] },\n                    \"votos_numero\": { \"type\": [\"integer\", \"null\"] },\n                    \"reason\": { \"type\": [\"string\", \"null\"] }\n                  },\n                  \"required\": [\"party_name_raw\", \"votos_letra\", \"votos_numero\", \"reason\"],\n                  \"additionalProperties\": false\n                }\n              },\n              \"firmas\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"presidente\": { \"type\": [\"string\", \"null\"] },\n                  \"vocal_1\": { \"type\": [\"string\", \"null\"] },\n                  \"vocal_2\": { \"type\": [\"string\", \"null\"] },\n                  \"representantes\": {\n                    \"type\": \"array\",\n                    \"items\": { \"type\": \"string\" }\n                  }\n                },\n                \"required\": [\"presidente\", \"vocal_1\", \"vocal_2\", \"representantes\"],\n                \"additionalProperties\": false\n              },\n              \"issues\": {\n                \"type\": \"array\",\n                \"items\": { \"type\": \"string\" }\n              }\n            },\n            \"required\": [\n              \"scope\",\n              \"datetime\",\n              \"censo\",\n              \"votantes\",\n              \"incidencias\",\n              \"candidaturas_raw\",\n              \"votes_by_party_id\",\n              \"candidaturas_unmapped\",\n              \"firmas\",\n              \"issues\"\n            ],\n            \"additionalProperties\": false\n          }\n        },\n        \"required\": [\n          \"schema_version\",\n          \"assistant_name\",\n          \"developed_by\",\n          \"action\",\n          \"human_message\",\n          \"source_file_id\",\n          \"submission_id\",\n          \"acta_key\",\n          \"drive\",\n          \"extracted_text_raw\",\n          \"structured_data\"\n        ],\n        \"additionalProperties\": false\n      }\n    },\n    \"required\": [\"output\"],\n    \"additionalProperties\": false\n  }\n}\n\n#IMPORTANTE SI DA ALGUN ERROR DE ESTOS EL OUTPUT DE ´ACTAS IMAGEN´ AVISA AL USUARIO QUE LA MESA QUE PONE EN EL DOCUMENTO NO EXISTE QUE LO REVISE. ERRORES: ERROR_SCOPE_INCOMPLETO | ERROR_VALIDACION_TABLA_IMPOSIBLE estos errores son solo para que lo sepas tu pasa un mensaje en ntexto normal diciendo que algo no esta bien esa mesa no existe en nuestra base de datos. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -1136,
+        832
+      ],
+      "id": "7c421c0b-e269-466f-99c9-297c58fb0e84",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.2",
+          "mode": "list",
+          "cachedResultName": "gpt-5.2"
+        },
+        "options": {
+          "temperature": 1,
+          "reasoningEffort": "medium",
+          "topP": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1408,
+        1168
+      ],
+      "id": "add6f74f-96a4-4f68-860c-04f85e10f1d2",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VnnA3Xojawi8TdYW",
+          "name": "OpenAi Escrutinia"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        1168
+      ],
+      "id": "1494ad1b-32cd-447b-a1f8-ea9465a3f48b",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        -800,
+        1168
+      ],
+      "id": "cbd22d3c-4eeb-4a82-ab1d-ee0a31e3e606",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=3{{ $('Entrada Whatsapp').first().json.message.chatId }}",
+        "tableName": "public.actas",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -1280,
+        1168
+      ],
+      "id": "b30fb141-fd38-428d-823a-76ae383c7bcd",
+      "name": "MEMORY",
+      "credentials": {
+        "postgres": {
+          "id": "99LydwP1cyz5NEsj",
+          "name": "Postgres SupaBase Devs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0920574d-acbe-4bf7-a41b-0e8206d819b0",
+              "name": "output",
+              "value": "={{ $json.output.mensaje_de_usuario }}",
+              "type": "string"
+            },
+            {
+              "id": "0d216d1b-6119-4935-ad56-7db1290a04ad",
+              "name": "acction",
+              "value": "={{ $json.output.agente_humano }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        864,
+        352
+      ],
+      "id": "a3cd7b14-926e-4d98-a65f-b426814b31c4",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"output\": {\n    \"schema_version\": \"scrutinia_actas_v6\",\n    \"assistant_name\": \"Scrutinia Actas\",\n    \"developed_by\": \"Se Acabó La Fiesta\",\n    \"action\": \"verificar\",\n    \"human_message\": \"Acta lista para revisión. Mesa ZARAGOZA|ZARAGOZA|05|043|A-K. Total votantes: 412. Nulos: 3. Blanco: 5. PP: 142. PSOE: 133. VOX: 41. SALF: 22. CHA: 18. PODEMOS-AV: 14. IU-MOVIMIENTO SUMAR: 11. PAR: 9. COALICIÓN ARAGONESA: 6. PACMA: 4. EXISTE: 3. MUNDO+JUSTO: 1. PCTE: 0. ESCAÑOS EN BLANCO: 0. ETXSBC: 0. Revisa que los valores coinciden con el acta antes de guardar.\",\n    \"source_file_id\": \"15TpuxImOAAV2gOQpotd6UGqu8h44gt6I\",\n    \"submission_id\": \"SUB-1737984308123\",\n    \"acta_key\": \"ZARAGOZA|ZARAGOZA|05|043|A-K\",\n    \"drive\": {\n      \"renamed_file\": \"ACTA_ZARAGOZA_ZARAGOZA_05_043_A-K_20260127_1418_1737984308123.jpg\"\n    },\n    \"extracted_text_raw\": \"DOC_TIPO: ACTA_ESCRUTINIO_MESA\\nELECCION: ELECCIONES A LAS CORTES DE ARAGÓN\\nPROVINCIA: ZARAGOZA\\nMUNICIPIO: ZARAGOZA\\nDISTRITO_CENSAL: 05\\nSECCION: 043\\nMESA: A-K\\nHORA: 20:30\\nDIA: 27\\nMES: ENERO\\nANIO: 2026\\nCENSO_ELECTORES_LISTAS: 520\\nCENSO_CERTIFICACIONES_PRESENTADAS: 2\\nCENSO_CERTIFICACIONES_ALTA: 0\\nCENSO_CERTIFICACIONES_CORRECCION: 0\\nCENSO_TOTAL_ELECTORES: 522\\nVOTANTES_A_ELECTORES_CENSADOS: 410\\nVOTANTES_B_INTERVENTORES_NO_CENSADOS: 2\\nVOTANTES_TOTAL: 412\\nVOTOS_NULOS: 3\\nVOTOS_BLANCO: 5\\nCANDIDATURAS_INICIO\\n1|PARTIDO POPULAR DE ARAGÓN (PP)|CIENTO CUARENTA Y DOS|142\\n2|PARTIDO SOCIALISTA OBRERO ESPAÑOL (PSOE)|CIENTO TREINTA Y TRES|133\\n3|VOX (VOX)|CUARENTA Y UNO|41\\n4|SE ACABÓ LA FIESTA (SALF)|VEINTIDÓS|22\\n5|CHUNTA ARAGONESISTA (CHA)|DIECIOCHO|18\\n6|PODEMOS – ALIANZA VERDE (PODEMOS-AV)|CATORCE|14\\n7|IZQUIERDA UNIDA – MOVIMIENTO SUMAR (IU-MOVIMIENTO SUMAR)|ONCE|11\\n8|PARTIDO ARAGONÉS (PAR)|NUEVE|9\\n9|COALICIÓN ARAGONESA (COALICIÓN ARAGONESA)|SEIS|6\\n10|PARTIDO ANIMALISTA CON EL MEDIO AMBIENTE (PACMA)|CUATRO|4\\n11|ARAGÓN EXISTE – Coalición EXISTE (EXISTE)|TRES|3\\n12|POR UN MUNDO MÁS JUSTO (MUNDO+JUSTO)|UNO|1\\n13|PARTIDO COMUNISTA DE LOS TRABAJADORES DE ESPAÑA (PCTE)|CERO|0\\n14|ESCAÑOS EN BLANCO PARA DEJAR ESCAÑOS VACÍOS (ESCAÑOS EN BLANCO)|CERO|0\\n15|ENTRE TODOS BAJO / BAIX CINCA (ETXSBC)|CERO|0\\nCANDIDATURAS_FIN\\nFIRMAS:\\nPRESIDENTE: MARIA GOMEZ PEREZ\\nVOCAL 1: JUAN MARTINEZ LOPEZ\\nVOCAL 2: LAURA SANCHEZ RUIZ\\nREPRESENTANTES: ANA PEREZ DIAZ; CARLOS GIL SERRA\\nOBSERVACIONES: SIN INCIDENCIAS\",\n    \"structured_data\": {\n      \"scope\": {\n        \"provincia\": \"ZARAGOZA\",\n        \"municipio\": \"ZARAGOZA\",\n        \"distrito_censal\": \"05\",\n        \"seccion\": \"043\",\n        \"mesa\": \"A-K\"\n      },\n      \"datetime\": {\n        \"hora\": \"20:30\",\n        \"dia\": \"27\",\n        \"mes\": \"ENERO\",\n        \"anio\": \"2026\"\n      },\n      \"censo\": {\n        \"electores_listas\": 520,\n        \"certificaciones_presentadas\": 2,\n        \"certificaciones_alta\": 0,\n        \"certificaciones_correccion\": 0,\n        \"total_electores\": 522\n      },\n      \"votantes\": {\n        \"censados_votaron\": 410,\n        \"interventores_no_censados\": 2,\n        \"total_votantes\": 412\n      },\n      \"incidencias\": {\n        \"votos_nulos\": 3,\n        \"votos_blanco\": 5\n      },\n      \"candidaturas_raw\": [\n        {\n          \"orden\": 1,\n          \"party_name_raw\": \"PARTIDO POPULAR DE ARAGÓN (PP)\",\n          \"votos_letra\": \"CIENTO CUARENTA Y DOS\",\n          \"votos_numero\": 142\n        },\n        {\n          \"orden\": 2,\n          \"party_name_raw\": \"PARTIDO SOCIALISTA OBRERO ESPAÑOL (PSOE)\",\n          \"votos_letra\": \"CIENTO TREINTA Y TRES\",\n          \"votos_numero\": 133\n        },\n        {\n          \"orden\": 3,\n          \"party_name_raw\": \"VOX (VOX)\",\n          \"votos_letra\": \"CUARENTA Y UNO\",\n          \"votos_numero\": 41\n        },\n        {\n          \"orden\": 4,\n          \"party_name_raw\": \"SE ACABÓ LA FIESTA (SALF)\",\n          \"votos_letra\": \"VEINTIDÓS\",\n          \"votos_numero\": 22\n        },\n        {\n          \"orden\": 5,\n          \"party_name_raw\": \"CHUNTA ARAGONESISTA (CHA)\",\n          \"votos_letra\": \"DIECIOCHO\",\n          \"votos_numero\": 18\n        },\n        {\n          \"orden\": 6,\n          \"party_name_raw\": \"PODEMOS – ALIANZA VERDE (PODEMOS-AV)\",\n          \"votos_letra\": \"CATORCE\",\n          \"votos_numero\": 14\n        },\n        {\n          \"orden\": 7,\n          \"party_name_raw\": \"IZQUIERDA UNIDA – MOVIMIENTO SUMAR (IU-MOVIMIENTO SUMAR)\",\n          \"votos_letra\": \"ONCE\",\n          \"votos_numero\": 11\n        },\n        {\n          \"orden\": 8,\n          \"party_name_raw\": \"PARTIDO ARAGONÉS (PAR)\",\n          \"votos_letra\": \"NUEVE\",\n          \"votos_numero\": 9\n        },\n        {\n          \"orden\": 9,\n          \"party_name_raw\": \"COALICIÓN ARAGONESA (COALICIÓN ARAGONESA)\",\n          \"votos_letra\": \"SEIS\",\n          \"votos_numero\": 6\n        },\n        {\n          \"orden\": 10,\n          \"party_name_raw\": \"PARTIDO ANIMALISTA CON EL MEDIO AMBIENTE (PACMA)\",\n          \"votos_letra\": \"CUATRO\",\n          \"votos_numero\": 4\n        },\n        {\n          \"orden\": 11,\n          \"party_name_raw\": \"ARAGÓN EXISTE – Coalición EXISTE (EXISTE)\",\n          \"votos_letra\": \"TRES\",\n          \"votos_numero\": 3\n        },\n        {\n          \"orden\": 12,\n          \"party_name_raw\": \"POR UN MUNDO MÁS JUSTO (MUNDO+JUSTO)\",\n          \"votos_letra\": \"UNO\",\n          \"votos_numero\": 1\n        },\n        {\n          \"orden\": 13,\n          \"party_name_raw\": \"PARTIDO COMUNISTA DE LOS TRABAJADORES DE ESPAÑA (PCTE)\",\n          \"votos_letra\": \"CERO\",\n          \"votos_numero\": 0\n        },\n        {\n          \"orden\": 14,\n          \"party_name_raw\": \"ESCAÑOS EN BLANCO PARA DEJAR ESCAÑOS VACÍOS (ESCAÑOS EN BLANCO)\",\n          \"votos_letra\": \"CERO\",\n          \"votos_numero\": 0\n        },\n        {\n          \"orden\": 15,\n          \"party_name_raw\": \"ENTRE TODOS BAJO / BAIX CINCA (ETXSBC)\",\n          \"votos_letra\": \"CERO\",\n          \"votos_numero\": 0\n        }\n      ],\n      \"votes_by_party_id\": {\n        \"PSOE\": 133,\n        \"PP\": 142,\n        \"VOX\": 41,\n        \"SALF\": 22,\n        \"CHA\": 18,\n        \"PODEMOS_AV\": 14,\n        \"IU_MOV_SUMAR\": 11,\n        \"PAR\": 9,\n        \"COALICION_ARAGONESA\": 6,\n        \"PACMA\": 4,\n        \"EXISTE\": 3,\n        \"ESCANOS_EN_BLANCO\": 0,\n        \"MUNDO_MAS_JUSTO\": 1,\n        \"PCTE\": 0,\n        \"ETXSBC\": 0\n      },\n      \"candidaturas_unmapped\": [\n        {\n          \"party_name_raw\": null,\n          \"votos_letra\": null,\n          \"votos_numero\": null,\n          \"reason\": null\n        }\n      ],\n      \"firmas\": {\n        \"presidente\": \"MARIA GOMEZ PEREZ\",\n        \"vocal_1\": \"JUAN MARTINEZ LOPEZ\",\n        \"vocal_2\": \"LAURA SANCHEZ RUIZ\",\n        \"representantes\": [\n          \"ANA PEREZ DIAZ\",\n          \"CARLOS GIL SERRA\"\n        ]\n      },\n      \"issues\": [\n        \"Ejemplo sintético para demostración de formato: los datos no provienen de un acta real.\"\n      ]\n    }\n  }\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -704,
+        1040
+      ],
+      "id": "f44e53de-ab8b-43b4-af0e-553fdfdbb4f2",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('File_to_Update', `ID DE LA IMAGEN QUE TENDRAS GUARDADO EN MEMORIA O TE HABRÁ LLEGADO POR MENSANGE`, 'string') }}",
+          "mode": "id"
+        },
+        "newUpdatedFileName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('New_Updated_File_Name', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [
+        -1024,
+        1168
+      ],
+      "id": "10c7abf7-f490-4d68-998c-e2dfc3819e26",
+      "name": "Change Name",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VXYlnj22FRb576jo",
+          "name": "Google Drive Devs@nextgenia.es"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gwCtOmhOlMCXtsPQ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/gwCtOmhOlMCXtsPQ",
+          "cachedResultName": "Actas Imagen"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_imagen": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id_imagen', ``, 'string') }}",
+            "phone": "={{ $('Entrada Whatsapp').first().json.message.chatId }}",
+            "conversationId": "={{ $json.conversationId }}",
+            "accountId": "={{ $json.accountId }}"
+          },
+          "matchingColumns": [
+            "id_imagen"
+          ],
+          "schema": [
+            {
+              "id": "id_imagen",
+              "displayName": "id_imagen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "accountId",
+              "displayName": "accountId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "conversationId",
+              "displayName": "conversationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -1152,
+        1168
+      ],
+      "id": "73e58a60-b8b8-4a0f-8385-0f8f02ff76d3",
+      "name": "Call 'Actas Imagen'"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.action }}",
+                    "rightValue": "guardar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e86e25f7-7cd8-402c-b96e-d6ff4887e8a2"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "guardar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c956f7a9-8eda-4bdb-9ce5-e0c826222a62",
+                    "leftValue": "={{ $json.output.action }}",
+                    "rightValue": "verificar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "verificar"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -208,
+        832
+      ],
+      "id": "66da2707-fed9-4dc0-9fdb-d64b18810ae0",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://escrutinia-chatwoot.7m2cdm.easypanel.host/api/v1/accounts/{{ $('Entrada Whatsapp').item.json.accountId }}/conversations/{{ $('Entrada Whatsapp').item.json.conversationId }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \n  \"content\": $json.text, \n  \"private\": false, \n  \"message_type\": \"outgoing\" \n}) }}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        432,
+        1088
+      ],
+      "id": "6de36010-fd2d-4e02-9965-c738765f74c7",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "I4rGjJkgpTwnv1nh",
+          "name": "Telegram Actas"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "with out as (\n  select (\n    '{{ $json.output ? JSON.stringify($json.output).replace(/'/g, \"''\") : \"{}\" }}'\n  )::jsonb as o\n),\nsrc as (\n  select\n    (o->>'submission_id') as submission_id,\n    (o->>'acta_key') as acta_key,\n\n    (o->>'schema_version') as schema_version,\n    (o->>'assistant_name') as assistant_name,\n    (o->>'developed_by') as developed_by,\n    (o->>'action') as action,\n    (o->>'human_message') as human_message,\n\n    (o->>'source_file_id') as source_file_id,\n    (o->'drive'->>'renamed_file') as renamed_file,\n\n    (o->'structured_data'->'scope'->>'provincia') as provincia,\n    (o->'structured_data'->'scope'->>'municipio') as municipio,\n    (o->'structured_data'->'scope'->>'distrito_censal') as distrito_censal,\n    (o->'structured_data'->'scope'->>'seccion') as seccion,\n    (o->'structured_data'->'scope'->>'mesa') as mesa,\n\n    (o->'structured_data'->'datetime'->>'hora') as hora,\n    (o->'structured_data'->'datetime'->>'dia') as dia,\n    (o->'structured_data'->'datetime'->>'mes') as mes,\n    (o->'structured_data'->'datetime'->>'anio') as anio,\n\n    (o->'structured_data'->'censo'->>'electores_listas')::int as censo_electores_listas,\n    (o->'structured_data'->'censo'->>'certificaciones_presentadas')::int as censo_certificaciones_presentadas,\n    (o->'structured_data'->'censo'->>'certificaciones_alta')::int as censo_certificaciones_alta,\n    (o->'structured_data'->'censo'->>'certificaciones_correccion')::int as censo_certificaciones_correccion,\n    (o->'structured_data'->'censo'->>'total_electores')::int as censo_total_electores,\n\n    (o->'structured_data'->'votantes'->>'censados_votaron')::int as votantes_censados_votaron,\n    (o->'structured_data'->'votantes'->>'interventores_no_censados')::int as votantes_interventores_no_censados,\n    (o->'structured_data'->'votantes'->>'total_votantes')::int as votantes_total,\n\n    (o->'structured_data'->'incidencias'->>'votos_nulos')::int as votos_nulos,\n    (o->'structured_data'->'incidencias'->>'votos_blanco')::int as votos_blanco,\n\n    (o->>'extracted_text_raw') as extracted_text_raw,\n    (o->'structured_data'->'issues') as issues,\n\n    o as raw_payload,\n    (o->'structured_data'->'votes_by_party_id') as votes_by_party_id\n  from out\n),\nupsert_acta as (\n  insert into public.scrutinia_actas (\n    submission_id, acta_key,\n    schema_version, assistant_name, developed_by, action, human_message,\n    source_file_id, renamed_file,\n    provincia, municipio, distrito_censal, seccion, mesa,\n    hora, dia, mes, anio,\n    censo_electores_listas, censo_certificaciones_presentadas, censo_certificaciones_alta, censo_certificaciones_correccion, censo_total_electores,\n    votantes_censados_votaron, votantes_interventores_no_censados, votantes_total,\n    votos_nulos, votos_blanco,\n    extracted_text_raw, issues, raw_payload,\n    updated_at\n  )\n  select\n    submission_id, acta_key,\n    schema_version, assistant_name, developed_by, action, human_message,\n    source_file_id, renamed_file,\n    provincia, municipio, distrito_censal, seccion, mesa,\n    hora, dia, mes, anio,\n    censo_electores_listas, censo_certificaciones_presentadas, censo_certificaciones_alta, censo_certificaciones_correccion, censo_total_electores,\n    votantes_censados_votaron, votantes_interventores_no_censados, votantes_total,\n    votos_nulos, votos_blanco,\n    extracted_text_raw, issues, raw_payload,\n    now()\n  from src\n  on conflict (submission_id) do update set\n    acta_key = excluded.acta_key,\n    schema_version = excluded.schema_version,\n    assistant_name = excluded.assistant_name,\n    developed_by = excluded.developed_by,\n    action = excluded.action,\n    human_message = excluded.human_message,\n    source_file_id = excluded.source_file_id,\n    renamed_file = excluded.renamed_file,\n    provincia = excluded.provincia,\n    municipio = excluded.municipio,\n    distrito_censal = excluded.distrito_censal,\n    seccion = excluded.seccion,\n    mesa = excluded.mesa,\n    hora = excluded.hora,\n    dia = excluded.dia,\n    mes = excluded.mes,\n    anio = excluded.anio,\n    censo_electores_listas = excluded.censo_electores_listas,\n    censo_certificaciones_presentadas = excluded.censo_certificaciones_presentadas,\n    censo_certificaciones_alta = excluded.censo_certificaciones_alta,\n    censo_certificaciones_correccion = excluded.censo_certificaciones_correccion,\n    censo_total_electores = excluded.censo_total_electores,\n    votantes_censados_votaron = excluded.votantes_censados_votaron,\n    votantes_interventores_no_censados = excluded.votantes_interventores_no_censados,\n    votantes_total = excluded.votantes_total,\n    votos_nulos = excluded.votos_nulos,\n    votos_blanco = excluded.votos_blanco,\n    extracted_text_raw = excluded.extracted_text_raw,\n    issues = excluded.issues,\n    raw_payload = excluded.raw_payload,\n    updated_at = now()\n  returning id\n),\nvotes_rows as (\n  select\n    (select id from upsert_acta) as acta_id,\n    v.key as party_id,\n    v.value::int as votos\n  from src\n  cross join lateral jsonb_each_text(coalesce(votes_by_party_id, '{}'::jsonb)) v\n)\ninsert into public.scrutinia_acta_votes (acta_id, party_id, votos)\nselect acta_id, party_id, votos\nfrom votes_rows\non conflict (acta_id, party_id) do update\nset votos = excluded.votos;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        160,
+        736
+      ],
+      "id": "ba3c3ab0-e250-4c39-b9f1-19f913b2ada8",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "9HUuk63It0IruOvU",
+          "name": "Postgres Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://escrutinia-chatwoot.7m2cdm.easypanel.host/api/v1/accounts/{{ $('Entrada Whatsapp').item.json.accountId }}/conversations/{{ $('Entrada Whatsapp').item.json.conversationId }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  content: `✅ Acta ${$('AI Agent').item.json.output.acta_key} guardada correctamente en la base de datos.`,\n  private: false,\n  message_type: \"outgoing\"\n}) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        432,
+        736
+      ],
+      "id": "9a1fe94e-736d-4209-8b67-db6138b75339",
+      "name": "HTTP Request4",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "I4rGjJkgpTwnv1nh",
+          "name": "Telegram Actas"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "responses": {
+          "values": [
+            {}
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        928
+      ],
+      "id": "f5b2147c-e7a9-478f-98b1-01012042e1b8",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VnnA3Xojawi8TdYW",
+          "name": "OpenAi Escrutinia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output.human_message }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=## Rol\nEres un formateador de salidas para WhatsApp y Telegram.\n\n## Objetivo\nToma el texto de la entrada y devuelve la salida estructurtada para un nodo de telegram de chatwoot\n\n\n\n## Reglas\n\nJamás devuelvas en la salida algo que no venta del input de la entrada.\n\nAsegúrate que la respuesta es en idioma Español de España.\n\nElimina todos los caracteres: *, ¿, i, #.\n\n\nNo añadas, quites ni reordenes información.\n\n\n## Comportamiento\nLee el contenido de Entrada a formatear.\n\nAplica las reglas para limpiar y segmentar.\n\nDevuelve solo el un texto en markdown resultante.\n\n\n\n# Entrada Ejemplo:\nActa lista para revisión. Mesa ZARAGOZA|UTEBO|01|010|B. Total votantes: 171. Votos nulos: 1. Votos en blanco: 10. Resumen: PSOE 20; COALICION_ARAGONESA 30; ESCANOS_EN_BLANCO 10; PAR 0; PODEMOS_AV 0; CHA 0; VOX 50; PP 50; PCTE 0; IU_MOV_SUMAR 0 (aparece como \"Sumar\"); EXISTE 0; SALF 0; PACMA 0; MUNDO_MAS_JUSTO 0; ETXSBC 0. Advertencias: fecha y hora no legibles (UNK). CENSO_CERTIFICACIONES_PRESENTADAS no legible (consignado 0). Firmas vacías. Nota: en fila 7 pone \"vos\" (errata); se ha mapeado a VOX, revisar visualmente.\n\n\n#Salida Ejemplo:\n\nEstos son los datos que puedo transcribir, por favor, revisa que estén correctos:\\n\\nMesa ZARAGOZA|UTEBO|01|010|B.\\nTotal votantes: 171.\\nVotos nulos: 1.\\nVotos en blanco: 10.\\n\\nVotos a partidos:\\nPSOE 20;\\nCOALICION_ARAGONESA 30;\\nESCANOS_EN_BLANCO 10;\\nPAR 0;\\nPODEMOS_AV 0;\\nCHA 0;\\nVOX 50;\\nPP 50;\\nPCTE 0;\\nIU_MOV_SUMAR 0 (aparece como \\\"Sumar\\\");\\nEXISTE 0;\\nSALF 0;\\nPACMA 0;\\nMUNDO_MAS_JUSTO 0;\\nETXSBC 0.\\n\\n⚠️ Advertencias: fecha y hora no legibles (UNK). CENSO_CERTIFICACIONES_PRESENTADAS no legible (consignado 0). Firmas vacías. Nota: en fila 7 pone \\\"vos\\\" (errata); se ha mapeado a VOX, revisar visualmente.\\n\\n¿Me puedes confirmar que los datos son correctos para poder guardarlos?\"\n\n\n#Importante# AÑade al final siempre esto: \\n\\n¿Me puedes confirmar que los datos son correctos para poder guardarlos?\n\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        32,
+        1088
+      ],
+      "id": "a6dcbf7f-b454-4611-a0ef-35e911a18e1a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -96,
+        1360
+      ],
+      "id": "241285d7-53ae-4573-9f3a-9b5d218e5c61",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "VnnA3Xojawi8TdYW",
+          "name": "OpenAi Escrutinia"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Edit Fields4": [
+      {
+        "json": {
+          "output": null,
+          "acction": null
+        }
+      }
+    ],
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "escrutinia-n8n.7m2cdm.easypanel.host",
+            "user-agent": "rest-client/2.1.0 (linux-musl x86_64) ruby/3.4.4p34",
+            "content-length": "4232",
+            "accept": "application/json",
+            "accept-encoding": "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "escrutinia-n8n.7m2cdm.easypanel.host",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "8d3052ec3ddf",
+            "x-real-ip": "172.18.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "account": {
+              "id": 2,
+              "name": "NextGenIA"
+            },
+            "additional_attributes": {},
+            "content_attributes": {},
+            "content_type": "text",
+            "content": null,
+            "conversation": {
+              "additional_attributes": {
+                "chat_id": 6283251434,
+                "business_connection_id": null
+              },
+              "can_reply": true,
+              "channel": "Channel::Telegram",
+              "contact_inbox": {
+                "id": 2347,
+                "contact_id": 2346,
+                "inbox_id": 5,
+                "source_id": "6283251434",
+                "created_at": "2026-02-05T11:20:56.755Z",
+                "updated_at": "2026-02-05T11:20:56.755Z",
+                "hmac_verified": false,
+                "pubsub_token": "fFsaaDhZsKu8ggTogNtArMEq"
+              },
+              "id": 2347,
+              "inbox_id": 5,
+              "messages": [
+                {
+                  "id": 21723,
+                  "content": null,
+                  "account_id": 2,
+                  "inbox_id": 5,
+                  "conversation_id": 2347,
+                  "message_type": 0,
+                  "created_at": 1770295794,
+                  "updated_at": "2026-02-05T12:49:54.998Z",
+                  "private": false,
+                  "status": "sent",
+                  "source_id": "116",
+                  "content_type": "text",
+                  "content_attributes": {},
+                  "sender_type": "Contact",
+                  "sender_id": 2346,
+                  "external_source_ids": {},
+                  "additional_attributes": {},
+                  "processed_message_content": null,
+                  "sentiment": {},
+                  "conversation": {
+                    "assignee_id": null,
+                    "unread_count": 8,
+                    "last_activity_at": 1770295794,
+                    "contact_inbox": {
+                      "source_id": "6283251434"
+                    }
+                  },
+                  "attachments": [
+                    {
+                      "id": 115,
+                      "message_id": 21723,
+                      "file_type": "image",
+                      "account_id": 2,
+                      "extension": null,
+                      "data_url": "https://escrutinia-chatwoot.7m2cdm.easypanel.host/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcmNEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f8738d174dae100b3a30991fff0310cbcd8cfa2b/file_22.jpg",
+                      "thumb_url": "https://escrutinia-chatwoot.7m2cdm.easypanel.host/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcmNEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f8738d174dae100b3a30991fff0310cbcd8cfa2b/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2RwQWZvdyIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--0718b745ccf6dcab34ffa1277da0e95727f39fdf/file_22.jpg",
+                      "file_size": 77995,
+                      "width": null,
+                      "height": null
+                    }
+                  ],
+                  "sender": {
+                    "additional_attributes": {
+                      "username": "adrianyacar",
+                      "language_code": "es",
+                      "social_telegram_user_id": 6283251434,
+                      "social_telegram_user_name": "adrianyacar"
+                    },
+                    "custom_attributes": {},
+                    "email": null,
+                    "id": 2346,
+                    "identifier": null,
+                    "name": "Adrián Yacar",
+                    "phone_number": null,
+                    "thumbnail": "",
+                    "blocked": false,
+                    "type": "contact"
+                  }
+                }
+              ],
+              "labels": [],
+              "meta": {
+                "sender": {
+                  "additional_attributes": {
+                    "username": "adrianyacar",
+                    "language_code": "es",
+                    "social_telegram_user_id": 6283251434,
+                    "social_telegram_user_name": "adrianyacar"
+                  },
+                  "custom_attributes": {},
+                  "email": null,
+                  "id": 2346,
+                  "identifier": null,
+                  "name": "Adrián Yacar",
+                  "phone_number": null,
+                  "thumbnail": "",
+                  "blocked": false,
+                  "type": "contact"
+                },
+                "assignee": null,
+                "team": null,
+                "hmac_verified": false
+              },
+              "status": "pending",
+              "custom_attributes": {},
+              "snoozed_until": null,
+              "unread_count": 8,
+              "first_reply_created_at": null,
+              "priority": null,
+              "waiting_since": 1770290456,
+              "agent_last_seen_at": 0,
+              "contact_last_seen_at": 0,
+              "last_activity_at": 1770295794,
+              "timestamp": 1770295794,
+              "created_at": 1770290456,
+              "updated_at": 1770295795.0030465
+            },
+            "created_at": "2026-02-05T12:49:54.998Z",
+            "id": 21723,
+            "inbox": {
+              "id": 5,
+              "name": "scrutinia2_bot"
+            },
+            "message_type": "incoming",
+            "private": false,
+            "sender": {
+              "account": {
+                "id": 2,
+                "name": "NextGenIA"
+              },
+              "additional_attributes": {
+                "username": "adrianyacar",
+                "language_code": "es",
+                "social_telegram_user_id": 6283251434,
+                "social_telegram_user_name": "adrianyacar"
+              },
+              "avatar": "",
+              "custom_attributes": {},
+              "email": null,
+              "id": 2346,
+              "identifier": null,
+              "name": "Adrián Yacar",
+              "phone_number": null,
+              "thumbnail": "",
+              "blocked": false
+            },
+            "source_id": "116",
+            "attachments": [
+              {
+                "id": 115,
+                "message_id": 21723,
+                "file_type": "image",
+                "account_id": 2,
+                "extension": null,
+                "data_url": "https://escrutinia-chatwoot.7m2cdm.easypanel.host/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcmNEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f8738d174dae100b3a30991fff0310cbcd8cfa2b/file_22.jpg",
+                "thumb_url": "https://escrutinia-chatwoot.7m2cdm.easypanel.host/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcmNEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f8738d174dae100b3a30991fff0310cbcd8cfa2b/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2RwQWZvdyIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--0718b745ccf6dcab34ffa1277da0e95727f39fdf/file_22.jpg",
+                "file_size": 77995,
+                "width": null,
+                "height": null
+              }
+            ],
+            "event": "message_created"
+          },
+          "webhookUrl": "https://escrutinia-n8n.7m2cdm.easypanel.host/webhook/2554c813-cb50-4412-ba5f-3fbea443aa9b",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Entrada Whatsapp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields15",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Set Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "OpenAI3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields15": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Text": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields18": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entrada Whatsapp": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MEMORY": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change Name": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Actas Imagen'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c3d34e08-9fa5-43c8-9f9f-d7d218b459bf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "55c59fca23d57a51e5514083d2433facf2a818ecbbcbd5f1c11196b344de0abd"
+  },
+  "id": "dNsZZLhqBQ9gSCBt",
+  "tags": []
+}

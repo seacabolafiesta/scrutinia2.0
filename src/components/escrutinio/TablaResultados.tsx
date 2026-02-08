@@ -1,6 +1,6 @@
 'use client';
 
-import { getPartidoColor, getPartidoDisplayName } from '@/lib/partido-colors';
+import { getPartidoHexColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import type { VotesMap, SeatsResult } from '@/lib/dhondt';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
@@ -47,7 +47,7 @@ export default function TablaResultados({
           </thead>
           <tbody>
             {resultados.map((resultado, index) => {
-              const colors = getPartidoColor(resultado.partido);
+              const hexColor = getPartidoHexColor(resultado.partido);
               return (
                 <tr 
                   key={resultado.partido}
@@ -56,7 +56,7 @@ export default function TablaResultados({
                   <td className="p-4 text-slate-400 font-mono text-sm">{index + 1}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${colors.bg}`} />
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: hexColor }} />
                       <span className="font-semibold text-white">{getPartidoDisplayName(resultado.partido)}</span>
                     </div>
                   </td>
@@ -68,7 +68,7 @@ export default function TablaResultados({
                   </td>
                   {showEscaños && (
                     <td className="p-4 text-right">
-                      <span className={`inline-flex items-center justify-center min-w-[3rem] px-3 py-1 rounded-full ${colors.bg} ${colors.text} font-bold`}>
+                      <span className="inline-flex items-center justify-center min-w-[3rem] px-3 py-1 rounded-full text-white font-bold" style={{ backgroundColor: hexColor }}>
                         {resultado.escaños}
                       </span>
                     </td>

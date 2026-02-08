@@ -17,7 +17,7 @@ export default function PoliticaPrivacidadPage() {
             <h2 className="text-xl font-bold text-white mb-4">1. Responsable del Tratamiento</h2>
             <p className="mb-4">
               <strong>Identidad:</strong> Se Acabó La Fiesta (SALF)<br />
-              <strong>Contacto DPD:</strong> <a href="mailto:privacidad@scrutinia.com" className="text-cyan-400 hover:underline">privacidad@scrutinia.com</a>
+              <strong>Contacto DPD:</strong> <a href="mailto:info@scrutinia.com" className="text-cyan-400 hover:underline">info@scrutinia.com</a>
             </p>
           </section>
 
@@ -31,6 +31,7 @@ export default function PoliticaPrivacidadPage() {
               <li><strong>Gestión de Usuarios:</strong> Administrar el registro de usuarios colaboradores, apoderados o interventores que participan en la plataforma.</li>
               <li><strong>Asesoría Legal:</strong> Gestionar las consultas legales recibidas a través de nuestro chatbot o formularios de contacto relacionadas con incidencias electorales.</li>
               <li><strong>Seguridad:</strong> Garantizar la seguridad de la red y de la información, previniendo accesos no autorizados o ataques a la plataforma.</li>
+              <li><strong>Auditoría y Mejora:</strong> Revisión de conversaciones y comunicaciones para la mejora de los algoritmos de IA y la calidad del servicio.</li>
             </ul>
           </section>
 
@@ -68,7 +69,7 @@ export default function PoliticaPrivacidadPage() {
               <li>Oponerse al tratamiento.</li>
             </ul>
             <p>
-              Para ejercer estos derechos, puede enviar un correo electrónico a <a href="mailto:privacidad@scrutinia.com" className="text-cyan-400 hover:underline">privacidad@scrutinia.com</a> acreditando su identidad.
+              Para ejercer estos derechos, puede enviar un correo electrónico a <a href="mailto:info@scrutinia.com" className="text-cyan-400 hover:underline">info@scrutinia.com</a> acreditando su identidad.
             </p>
           </section>
 
@@ -76,6 +77,19 @@ export default function PoliticaPrivacidadPage() {
             <h2 className="text-xl font-bold text-white mb-4">6. Protección de Datos en Actas Electorales</h2>
             <p>
               Las actas de escrutinio son documentos públicos. No obstante, Scrutinia aplicará medidas técnicas para minimizar la exposición de datos personales innecesarios (como nombres de interventores o vocales) que pudieran aparecer en las imágenes, centrando el tratamiento en los datos numéricos de resultados electorales necesarios para la finalidad de verificación.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-white mb-4 text-cyan-400">7. Auditoría de Conversaciones y Aceptación</h2>
+            <p className="mb-4 font-semibold">
+              INFORMACIÓN IMPORTANTE:
+            </p>
+            <p className="mb-4">
+              Todas las conversaciones, mensajes y comunicaciones mantenidas con Scrutinia (a través de correo electrónico, chatbots, formularios u otros canales) podrán ser <strong>revisadas, auditadas y procesadas</strong> por nuestro equipo técnico y legal con el fin de mejorar el funcionamiento del programa, entrenar nuestros modelos de inteligencia artificial y asegurar el cumplimiento de la finalidad de transparencia electoral del software.
+            </p>
+            <p className="p-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg text-cyan-100">
+              <strong>ACEPTACIÓN EXPRESA:</strong> El mero hecho de enviar una comunicación a Scrutinia o iniciar una interacción con nuestros sistemas implica la <strong>lectura, comprensión y aceptación incondicional</strong> de esta cláusula de auditoría. Si no está de acuerdo con que su comunicación sea revisada para estos fines, por favor absténgase de contactar o utilizar los servicios de comunicación de la plataforma.
             </p>
           </section>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getPartidoColor, getPartidoDisplayName } from '@/lib/partido-colors';
+import { getPartidoHexColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import type { SeatsResult } from '@/lib/dhondt';
 import { Plus, Minus } from 'lucide-react';
 
@@ -43,7 +43,7 @@ export default function Pactometro({ escaños, mayoriaAbsoluta }: PactometroProp
           .sort(([, a], [, b]) => b - a)
           .map(([partido, seats]) => {
             const isSelected = selectedPartidos.has(partido);
-            const colors = getPartidoColor(partido);
+            const hexColor = getPartidoHexColor(partido);
 
             return (
               <button
@@ -51,9 +51,10 @@ export default function Pactometro({ escaños, mayoriaAbsoluta }: PactometroProp
                 onClick={() => togglePartido(partido)}
                 className={`p-3 rounded-lg border-2 transition-all ${
                   isSelected
-                    ? `${colors.bg} ${colors.border} ${colors.text}`
+                    ? 'text-white'
                     : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-600'
                 }`}
+                style={isSelected ? { backgroundColor: hexColor, borderColor: hexColor } : undefined}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-sm truncate">{getPartidoDisplayName(partido)}</span>
