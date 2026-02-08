@@ -24,7 +24,7 @@ export default function Navbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               <a href="#asesor" className="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Asesor IA</a>
-              <span className="text-slate-600 cursor-not-allowed px-3 py-2 text-sm font-medium select-none" title="Disponible durante la jornada electoral">Escrutinio</span>
+              <Link href="/escrutinio" className="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Escrutinio</Link>
               <Link href="/campus" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-900/20">
                 Campus Virtual
               </Link>

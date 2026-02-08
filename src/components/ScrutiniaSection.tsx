@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ScanLine, Camera, Cpu, Globe, GraduationCap, ArrowRight } from 'lucide-react';
+import HemicicloPreview from '@/components/HemicicloPreview';
 
 export default function ScrutiniaSection() {
   return (
@@ -48,19 +49,14 @@ export default function ScrutiniaSection() {
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 relative overflow-hidden">
             <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
             <div className="relative z-10">
-              <h3 className="text-2xl font-bold text-white mb-4">Disponible el 8 de Febrero de 2026</h3>
-              <p className="text-slate-400 mb-8">
-                La función de envío y escrutinio se activará exclusivamente durante la jornada electoral de las Cortes de Aragón.
+              <h3 className="text-2xl font-bold text-white mb-2 text-center">Escrutinio Ciudadano en Directo</h3>
+              <p className="text-slate-400 mb-8 text-center">
+                Composición del hemiciclo según las actas procesadas por IA.
               </p>
-              <div className="inline-flex flex-col sm:flex-row gap-4 justify-center">
-                <span className="px-6 py-3 rounded-lg bg-slate-800 text-slate-400 font-mono text-sm border border-slate-700 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                  Estado: EN ESPERA DE APERTURA DE URNAS
-                </span>
-              </div>
+              <HemicicloPreview />
             </div>
           </div>
         </div>
