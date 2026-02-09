@@ -13,6 +13,9 @@ import { useRealtimeScrutiny } from '@/hooks/useRealtimeScrutiny';
 import { calculateDHondt, calculatePercentages } from '@/lib/dhondt';
 import { getEscañosProvincia, type Provincia } from '@/lib/elections-config';
 
+// ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
+const SHOW_AUDIT_MODE = true;
+
 export default function EscrutinioPage() {
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'ARAGON'>('ARAGON');
   const [ultimaActualizacion, setUltimaActualizacion] = useState<Date>(new Date());
@@ -89,51 +92,72 @@ export default function EscrutinioPage() {
           </p>
         </div>
 
-        <SelectorGeografico
-          provinciaSeleccionada={provinciaSeleccionada}
-          onProvinciaChange={setProvinciaSeleccionada}
-        />
+        {SHOW_AUDIT_MODE ? (
+          <>
+            <div className="mb-8">
+              <Hemiciclo escaños={seats} totalEscaños={totalEscaños} />
+            </div>
+            <div className="p-10 bg-slate-900/50 border border-cyan-500/30 rounded-xl text-center">
+              <p className="text-2xl md:text-3xl font-bold text-white mb-3">
+                SCRUTINIA 2.0 está auditando las actas
+              </p>
+              <p className="text-slate-400 text-lg">
+                Pronto verás los resultados
+              </p>
+              <div className="mt-6 flex justify-center">
+                <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <SelectorGeografico
+              provinciaSeleccionada={provinciaSeleccionada}
+              onProvinciaChange={setProvinciaSeleccionada}
+            />
 
-        <HeaderEstado
-          porcentajeEscrutado={porcentajeEscrutado}
-          participacion={participacion}
-          actasEscrutadas={actasEscrutadas}
-          totalMesas={totalMesas}
-          ultimaActualizacion={ultimaActualizacion}
-        />
+            <HeaderEstado
+              porcentajeEscrutado={porcentajeEscrutado}
+              participacion={participacion}
+              actasEscrutadas={actasEscrutadas}
+              totalMesas={totalMesas}
+              ultimaActualizacion={ultimaActualizacion}
+            />
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          <Hemiciclo escaños={seats} totalEscaños={totalEscaños} />
-          <Pactometro escaños={seats} mayoriaAbsoluta={mayoriaAbsoluta} />
-        </div>
+            <div className="grid lg:grid-cols-2 gap-8 mb-8">
+              <Hemiciclo escaños={seats} totalEscaños={totalEscaños} />
+              <Pactometro escaños={seats} mayoriaAbsoluta={mayoriaAbsoluta} />
+            </div>
 
-        <TablaResultados
-          votos={votosMap}
-          porcentajes={porcentajes}
-          escaños={seats}
-          showEscaños={provinciaSeleccionada !== 'ARAGON'}
-        />
+            <TablaResultados
+              votos={votosMap}
+              porcentajes={porcentajes}
+              escaños={seats}
+              showEscaños={provinciaSeleccionada !== 'ARAGON'}
+            />
 
-        <Link
-          href="/escrutinio/actas"
-          className="mt-8 flex items-center justify-center gap-3 p-6 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-cyan-500/50 transition-colors group"
-        >
-          <FileText className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
-          <div>
-            <p className="text-white font-bold">Repositorio de Actas</p>
-            <p className="text-slate-400 text-sm">Consulta votos por mesa y descarga las actas escaneadas</p>
-          </div>
-        </Link>
+            <Link
+              href="/escrutinio/actas"
+              className="mt-8 flex items-center justify-center gap-3 p-6 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-cyan-500/50 transition-colors group"
+            >
+              <FileText className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <div>
+                <p className="text-white font-bold">Repositorio de Actas</p>
+                <p className="text-slate-400 text-sm">Consulta votos por mesa y descarga las actas escaneadas</p>
+              </div>
+            </Link>
 
-        {totalVotos === 0 && (
-          <div className="mt-8 p-8 bg-slate-900/50 border border-slate-800 rounded-xl text-center">
-            <p className="text-slate-400 text-lg">
-              📊 Esperando datos del escrutinio...
-            </p>
-            <p className="text-slate-500 text-sm mt-2">
-              Los resultados aparecerán automáticamente cuando se procesen las primeras actas.
-            </p>
-          </div>
+            {totalVotos === 0 && (
+              <div className="mt-8 p-8 bg-slate-900/50 border border-slate-800 rounded-xl text-center">
+                <p className="text-slate-400 text-lg">
+                  Esperando datos del escrutinio...
+                </p>
+                <p className="text-slate-500 text-sm mt-2">
+                  Los resultados aparecerán automáticamente cuando se procesen las primeras actas.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
