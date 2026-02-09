@@ -94,8 +94,37 @@ export default function EscrutinioPage() {
 
         {SHOW_AUDIT_MODE ? (
           <>
-            <div className="mb-8">
-              <Hemiciclo escaños={seats} totalEscaños={totalEscaños} />
+            <div className="mb-8 bg-slate-900/50 border border-slate-800 rounded-xl p-6 md:p-8">
+              <h3 className="text-xl font-bold text-white mb-2 text-center">Composición del Hemiciclo</h3>
+              <svg viewBox="0 0 500 280" className="w-full max-w-xl mx-auto opacity-30">
+                {[0, 1, 2, 3].map((row) => {
+                  const outerR = 230;
+                  const innerR = 100;
+                  const rowThick = (outerR - innerR - 3 * 3) / 4;
+                  const rOut = outerR - row * (rowThick + 3);
+                  const rIn = rOut - rowThick;
+                  const cx = 250, cy = 260;
+                  const x1 = cx + rOut * Math.cos(Math.PI);
+                  const y1 = cy - rOut * Math.sin(Math.PI);
+                  const x2 = cx + rOut * Math.cos(0);
+                  const y2 = cy - rOut * Math.sin(0);
+                  const x3 = cx + rIn * Math.cos(0);
+                  const y3 = cy - rIn * Math.sin(0);
+                  const x4 = cx + rIn * Math.cos(Math.PI);
+                  const y4 = cy - rIn * Math.sin(Math.PI);
+                  return (
+                    <path
+                      key={`gray-r${row}`}
+                      d={`M${x1},${y1} A${rOut},${rOut} 0 0 1 ${x2},${y2} L${x3},${y3} A${rIn},${rIn} 0 0 0 ${x4},${y4}Z`}
+                      fill="#334155"
+                      stroke="rgba(15,23,42,0.6)"
+                      strokeWidth="1"
+                    />
+                  );
+                })}
+                <text x={250} y={242} textAnchor="middle" fill="#64748b" fontSize="12" fontWeight="600">Mayoría</text>
+                <text x={250} y={258} textAnchor="middle" fill="#64748b" fontSize="11">34 escaños</text>
+              </svg>
             </div>
             <div className="p-10 bg-slate-900/50 border border-cyan-500/30 rounded-xl text-center">
               <p className="text-2xl md:text-3xl font-bold text-white mb-3">
