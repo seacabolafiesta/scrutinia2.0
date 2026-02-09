@@ -88,9 +88,14 @@ export default function HemicicloPreview() {
     );
   }
 
+  // ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
+  const SHOW_AUDIT_MODE = true;
+
   return (
     <div>
-      {hasData ? (
+      {SHOW_AUDIT_MODE ? (
+        <GrayHemiciclo />
+      ) : hasData ? (
         <Hemiciclo escaños={seats} totalEscaños={totalEscaños} />
       ) : (
         <GrayHemiciclo />
