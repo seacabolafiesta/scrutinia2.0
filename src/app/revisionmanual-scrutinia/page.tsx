@@ -39,6 +39,7 @@ export default function RevisionManualPage() {
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [confirmMigrate, setConfirmMigrate] = useState(false);
   const [confirmImpugnar, setConfirmImpugnar] = useState(false);
+  const [impugnarMotivo, setImpugnarMotivo] = useState('');
   
   // Conflict / Duplicate State
   const [conflictActa, setConflictActa] = useState<any>(null);
@@ -72,7 +73,6 @@ export default function RevisionManualPage() {
     setConfirmDiscard(false);
     setConfirmMigrate(false);
     setConfirmImpugnar(false);
-    setConflictActa(null);
     setShowConflictModal(false);
     setSearchMesa('');
   };
@@ -127,8 +127,13 @@ export default function RevisionManualPage() {
   };
 
   const handleImpugnar = () => {
-    impugnarActa();
+    if (!impugnarMotivo.trim()) {
+      setMessage({ type: 'error', text: 'Debes indicar el motivo de la impugnación' });
+      return;
+    }
+    impugnarActa(impugnarMotivo);
     setConfirmImpugnar(false);
+    setImpugnarMotivo('');
   };
 
   const handleSearchMesa = (q: string) => {
@@ -576,11 +581,36 @@ export default function RevisionManualPage() {
                         Impugnar
                       </button>
                     ) : (
-                      <div className="col-span-2 bg-red-900/20 border border-red-900/50 rounded-xl p-3 flex flex-col gap-2">
-                        <p className="text-red-300 text-xs text-center">¿Marcar como impugnable?</p>
-                        <div className="flex gap-2">
-                          <button onClick={handleImpugnar} className="flex-1 py-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-500">Sí, impugnar</button>
-                          <button onClick={() => setConfirmImpugnar(false)} className="flex-1 py-1.5 bg-slate-800 text-white text-xs rounded hover:bg-slate-700">Cancelar</button>
+                      <div className="col-span-2 bg-red-900/20 border border-red-900/50 rounded-xl p-4 flex flex-col gap-3">
+                        <div className="text-center">
+                          <p className="text-red-300 text-sm font-bold mb-1">¿Marcar como impugnable?</p>
+                          <p className="text-red-400/70 text-xs">Esta acción moverá el acta a revisión legal.</p>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs text-red-300 mb-1.5 ml-1">Motivo de la impugnación:</label>
+                          <textarea 
+                            value={impugnarMotivo}
+                            onChange={(e) => setImpugnarMotivo(e.target.value)}
+                            placeholder="Describe por qué se impugna este acta..."
+                            className="w-full px-3 py-2 bg-red-950/50 border border-red-900/50 rounded-lg text-red-100 placeholder-red-900/50 text-sm focus:outline-none focus:ring-1 focus:ring-red-500 min-h-[80px]"
+                          />
+                        </div>
+
+                        <div className="flex gap-2 mt-1">
+                          <button 
+                            onClick={handleImpugnar}
+                            disabled={!impugnarMotivo.trim()}
+                            className="flex-1 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold rounded-lg transition-colors"
+                          >
+                            Confirmar Impugnación
+                          </button>
+                          <button 
+                            onClick={() => { setConfirmImpugnar(false); setImpugnarMotivo(''); }} 
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs rounded-lg transition-colors"
+                          >
+                            Cancelar
+                          </button>
                         </div>
                       </div>
                     )}

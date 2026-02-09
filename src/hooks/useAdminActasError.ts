@@ -253,28 +253,18 @@ export function useAdminActasError() {
   }, [selectedActa, supabase, fetchActasError]);
 
   // Impugnar: move to impugnables table
-  const impugnarActa = useCallback(async () => {
+  const impugnarActa = useCallback(async (motivo: string = '') => {
     if (!selectedActa) return;
 
     try {
       const { data, error } = await supabase.rpc('impugnar_acta_error', {
-        p_error_id: selectedActa.id
+        p_error_id: selectedActa.id,
+        p_motivo: motivo
       });
 
       if (error) throw error;
       const result = data as { ok: boolean; error?: string };
       if (!result.ok) throw new Error(result.error || 'Error al impugnar');
-
-      // Move image if needed (though impugnables might stay in same bucket or not? 
-      // The RPC doesn't move the file, it just references it. 
-      // But we probably want to keep it in RepoError or move to a Quarantine bucket?
-      // For now, we leave the file where it is (RepoError) but referenced in the new table.
-      // Ideally we should probably rename it to ensure it persists if we clear RepoError.
-      // But let's stick to the RPC logic which deleted from error table. 
-      // Wait, the RPC deleted from error table. The file is still in RepoError.
-      // We should probably NOT delete the file if we want to keep it. 
-      // The current RPC implementation deleted the row but didn't touch the file.
-      // That is fine, the file remains in RepoError bucket (which is not auto-cleaned).
 
       setMessage({ type: 'success', text: 'Acta marcada como IMPUGNABLE' });
       setSelectedActa(null);
