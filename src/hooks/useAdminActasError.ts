@@ -84,7 +84,8 @@ export function useAdminActasError() {
     setVotos((votosData as VotoError[]) || []);
 
     // Build image URL from acta_key
-    const fileName = acta.acta_key.replace(/\|/g, '_') + '.jpg';
+    // Sanitize: replace pipes AND spaces with underscores
+    const fileName = acta.acta_key.replace(/\|/g, '_').replace(/ /g, '_') + '.jpg';
     const { data: urlData } = supabase.storage
       .from(BUCKET_ERROR)
       .getPublicUrl(fileName);

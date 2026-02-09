@@ -170,7 +170,8 @@ export function useActasBrowser() {
       votos = (votosData as { party_id: string; votos: number }[]) || [];
 
       // Build storage URL
-      const fileName = actaKey.replace(/\|/g, '_') + '.jpg';
+      // Replace pipes AND spaces with underscores for robust filename handling
+      const fileName = actaKey.replace(/\|/g, '_').replace(/ /g, '_') + '.jpg';
       const { data: urlData } = supabase.storage
         .from(BUCKET_NAME)
         .getPublicUrl(fileName);
