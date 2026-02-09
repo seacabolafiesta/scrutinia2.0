@@ -28,6 +28,9 @@ export default function RevisionManualPage() {
     guardarCamposActa,
     migrarActa,
     descartarActa,
+    impugnarActa,
+    sobrescribirActa,
+    fetchExistingActaByKey,
     setMessage,
   } = useAdminActasError();
 
@@ -35,6 +38,11 @@ export default function RevisionManualPage() {
   const [searchMesa, setSearchMesa] = useState('');
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [confirmMigrate, setConfirmMigrate] = useState(false);
+  const [confirmImpugnar, setConfirmImpugnar] = useState(false);
+  
+  // Conflict / Duplicate State
+  const [conflictActa, setConflictActa] = useState<any>(null);
+  const [showConflictModal, setShowConflictModal] = useState(false);
 
   // Editable overrides
   const [editProvincia, setEditProvincia] = useState('');
@@ -45,6 +53,11 @@ export default function RevisionManualPage() {
   const [editVotantes, setEditVotantes] = useState(0);
   const [editNulos, setEditNulos] = useState(0);
   const [editBlanco, setEditBlanco] = useState(0);
+
+  // Derived calculations
+  const totalVotosPartidos = votos.reduce((acc, v) => acc + v.votos, 0);
+  const totalCalculado = totalVotosPartidos + editNulos + editBlanco;
+  const isSumCorrect = totalCalculado === editVotantes;
 
   const handleSelectActa = (acta: typeof actasError[0]) => {
     selectActa(acta);
@@ -58,6 +71,9 @@ export default function RevisionManualPage() {
     setEditBlanco(acta.votos_blanco || 0);
     setConfirmDiscard(false);
     setConfirmMigrate(false);
+    setConfirmImpugnar(false);
+    setConflictActa(null);
+    setShowConflictModal(false);
     setSearchMesa('');
   };
 
@@ -71,7 +87,19 @@ export default function RevisionManualPage() {
     setMessage({ type: 'success', text: `Mesa seleccionada: ${mesa.codigo_unico}` });
   };
 
-  const handleMigrar = () => {
+  const handleMigrar = async () => {
+    // 1. Check for duplicate key first
+    const targetKey = `${editProvincia}|${editMunicipio}|${editDistrito}|${editSeccion}|${editMesa}`;
+    const existing = await fetchExistingActaByKey(targetKey);
+
+    if (existing) {
+      setConflictActa(existing);
+      setShowConflictModal(true);
+      setConfirmMigrate(false);
+      return;
+    }
+
+    // 2. If no duplicate, proceed with migration
     migrarActa({
       provincia: editProvincia,
       municipio: editMunicipio,
@@ -85,14 +113,31 @@ export default function RevisionManualPage() {
     setConfirmMigrate(false);
   };
 
+  const handleOverwrite = () => {
+    if (conflictActa) {
+      sobrescribirActa(conflictActa.id);
+      setShowConflictModal(false);
+      setConflictActa(null);
+    }
+  };
+
   const handleDescartar = () => {
     descartarActa();
     setConfirmDiscard(false);
   };
 
+  const handleImpugnar = () => {
+    impugnarActa();
+    setConfirmImpugnar(false);
+  };
+
   const handleSearchMesa = (q: string) => {
     setSearchMesa(q);
     buscarMesa(q);
+  };
+  
+  const handleAutoFixTotal = () => {
+    setEditVotantes(totalCalculado);
   };
 
   return (
@@ -137,6 +182,64 @@ export default function RevisionManualPage() {
             <button onClick={() => setMessage(null)} className="ml-auto">
               <X className="w-4 h-4" />
             </button>
+          </div>
+        )}
+
+        {/* Conflict Modal */}
+        {showConflictModal && conflictActa && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <AlertTriangle className="w-6 h-6 text-amber-500" />
+                Conflicto: Acta Duplicada
+              </h3>
+              <p className="text-slate-400 mb-6">
+                Ya existe un acta registrada para la mesa <strong>{conflictActa.acta_key.replace(/\|/g, ' ')}</strong>.
+                ¿Qué deseas hacer?
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Existente en Base de Datos</h4>
+                  <div className="space-y-1 text-sm text-slate-300">
+                    <p>Votantes: <span className="font-mono text-white">{conflictActa.votantes_total}</span></p>
+                    <p>Nulos: <span className="font-mono text-white">{conflictActa.votos_nulos}</span></p>
+                    <p>Blancos: <span className="font-mono text-white">{conflictActa.votos_blanco}</span></p>
+                    <p className="text-xs text-slate-500 mt-2">Registrada: {new Date(conflictActa.created_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <div className="bg-emerald-900/10 p-4 rounded-xl border border-emerald-900/30">
+                  <h4 className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-2">Nueva (Revisión)</h4>
+                  <div className="space-y-1 text-sm text-emerald-100">
+                    <p>Votantes: <span className="font-mono font-bold">{editVotantes}</span></p>
+                    <p>Nulos: <span className="font-mono font-bold">{editNulos}</span></p>
+                    <p>Blancos: <span className="font-mono font-bold">{editBlanco}</span></p>
+                    <p className="text-xs text-emerald-400/60 mt-2">Ahora mismo</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleOverwrite}
+                  className="flex-1 py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition-colors"
+                >
+                  Sobrescribir (Usar Nueva)
+                </button>
+                <button
+                  onClick={handleDescartar}
+                  className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl transition-colors"
+                >
+                  Mantener Existente (Descartar Nueva)
+                </button>
+              </div>
+              <button 
+                onClick={() => setShowConflictModal(false)}
+                className="w-full mt-3 py-2 text-slate-500 hover:text-slate-300 text-sm"
+              >
+                Cancelar y volver a editar
+              </button>
+            </div>
           </div>
         )}
 
@@ -351,7 +454,7 @@ export default function RevisionManualPage() {
                     <div>
                       <label className="block text-xs text-slate-400 mb-1">Votantes</label>
                       <input type="number" value={editVotantes} onChange={(e) => setEditVotantes(parseInt(e.target.value) || 0)}
-                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none" />
+                        className={`w-full px-3 py-2 bg-slate-800 border rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none ${!isSumCorrect ? 'border-red-500' : 'border-slate-700'}`} />
                     </div>
                     <div>
                       <label className="block text-xs text-slate-400 mb-1">Nulos</label>
@@ -364,6 +467,21 @@ export default function RevisionManualPage() {
                         className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none" />
                     </div>
                   </div>
+
+                  {/* Sum Validation Warning */}
+                  {!isSumCorrect && (
+                    <div className="mt-3 p-3 bg-red-900/20 border border-red-800 rounded-lg flex items-center justify-between">
+                      <div className="text-xs text-red-300">
+                        <span className="font-bold">Error de suma:</span> {totalVotosPartidos} (votos) + {editNulos} (nulos) + {editBlanco} (blancos) = <strong>{totalCalculado}</strong>
+                      </div>
+                      <button 
+                        onClick={handleAutoFixTotal}
+                        className="text-xs px-2 py-1 bg-red-800 hover:bg-red-700 text-white rounded transition-colors"
+                      >
+                        Corregir Total
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Editable votes */}
@@ -393,7 +511,7 @@ export default function RevisionManualPage() {
                   <div className="mt-3 pt-3 border-t border-slate-800 flex justify-between text-sm">
                     <span className="text-slate-400">Total votos partidos</span>
                     <span className="text-white font-bold font-mono">
-                      {votos.reduce((s, v) => s + v.votos, 0)}
+                      {totalVotosPartidos}
                     </span>
                   </div>
                 </div>
@@ -428,32 +546,45 @@ export default function RevisionManualPage() {
                     </div>
                   )}
 
-                  {/* Discard button */}
-                  {!confirmDiscard ? (
-                    <button
-                      onClick={() => setConfirmDiscard(true)}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 hover:bg-red-900/50 text-slate-400 hover:text-red-400 font-medium rounded-xl transition-colors border border-slate-700 hover:border-red-800"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Descartar acta
-                    </button>
-                  ) : (
-                    <div className="bg-red-900/30 border border-red-700 rounded-xl p-4">
-                      <p className="text-red-300 text-sm mb-3">
-                        ¿Seguro? Se eliminará permanentemente el acta y su imagen.
-                      </p>
-                      <div className="flex gap-2">
-                        <button onClick={handleDescartar}
-                          className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-colors text-sm">
-                          Eliminar definitivamente
-                        </button>
-                        <button onClick={() => setConfirmDiscard(false)}
-                          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm">
-                          Cancelar
-                        </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Discard button */}
+                    {!confirmDiscard ? (
+                      <button
+                        onClick={() => setConfirmDiscard(true)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-medium rounded-xl transition-colors border border-slate-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Descartar
+                      </button>
+                    ) : (
+                      <div className="col-span-2 bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col gap-2">
+                        <p className="text-white text-xs text-center">¿Eliminar permanentemente?</p>
+                        <div className="flex gap-2">
+                          <button onClick={handleDescartar} className="flex-1 py-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-500">Sí, eliminar</button>
+                          <button onClick={() => setConfirmDiscard(false)} className="flex-1 py-1.5 bg-slate-600 text-white text-xs rounded hover:bg-slate-500">Cancelar</button>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                    {/* Impugnar button */}
+                    {!confirmImpugnar ? (
+                      <button
+                        onClick={() => setConfirmImpugnar(true)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 hover:text-red-400 font-medium rounded-xl transition-colors border border-red-900/50"
+                      >
+                        <AlertTriangle className="w-4 h-4" />
+                        Impugnar
+                      </button>
+                    ) : (
+                      <div className="col-span-2 bg-red-900/20 border border-red-900/50 rounded-xl p-3 flex flex-col gap-2">
+                        <p className="text-red-300 text-xs text-center">¿Marcar como impugnable?</p>
+                        <div className="flex gap-2">
+                          <button onClick={handleImpugnar} className="flex-1 py-1.5 bg-red-600 text-white text-xs rounded hover:bg-red-500">Sí, impugnar</button>
+                          <button onClick={() => setConfirmImpugnar(false)} className="flex-1 py-1.5 bg-slate-800 text-white text-xs rounded hover:bg-slate-700">Cancelar</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

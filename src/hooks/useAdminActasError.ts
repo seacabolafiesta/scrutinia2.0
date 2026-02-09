@@ -252,6 +252,96 @@ export function useAdminActasError() {
     await fetchActasError();
   }, [selectedActa, supabase, fetchActasError]);
 
+  // Impugnar: move to impugnables table
+  const impugnarActa = useCallback(async () => {
+    if (!selectedActa) return;
+
+    try {
+      const { data, error } = await supabase.rpc('impugnar_acta_error', {
+        p_error_id: selectedActa.id
+      });
+
+      if (error) throw error;
+      const result = data as { ok: boolean; error?: string };
+      if (!result.ok) throw new Error(result.error || 'Error al impugnar');
+
+      // Move image if needed (though impugnables might stay in same bucket or not? 
+      // The RPC doesn't move the file, it just references it. 
+      // But we probably want to keep it in RepoError or move to a Quarantine bucket?
+      // For now, we leave the file where it is (RepoError) but referenced in the new table.
+      // Ideally we should probably rename it to ensure it persists if we clear RepoError.
+      // But let's stick to the RPC logic which deleted from error table. 
+      // Wait, the RPC deleted from error table. The file is still in RepoError.
+      // We should probably NOT delete the file if we want to keep it. 
+      // The current RPC implementation deleted the row but didn't touch the file.
+      // That is fine, the file remains in RepoError bucket (which is not auto-cleaned).
+
+      setMessage({ type: 'success', text: 'Acta marcada como IMPUGNABLE' });
+      setSelectedActa(null);
+      setVotos([]);
+      await fetchActasError();
+    } catch (err: any) {
+      setMessage({ type: 'error', text: `Error: ${err.message}` });
+    }
+  }, [selectedActa, supabase, fetchActasError]);
+
+  // Sobrescribir: overwrite existing acta
+  const sobrescribirActa = useCallback(async (existingActaId: string) => {
+    if (!selectedActa) return;
+    setIsMigrating(true);
+    setMessage(null);
+
+    try {
+      await guardarVotos();
+
+      const { data, error } = await supabase.rpc('sobrescribir_acta_existente', {
+        p_error_id: selectedActa.id,
+        p_existing_acta_id: existingActaId
+      });
+
+      if (error) throw error;
+      const result = data as { ok: boolean; message: string; file_name: string };
+      
+      if (!result.ok) throw new Error('Error al sobrescribir');
+
+      // Move image
+      const oldFileName = selectedActa.acta_key.replace(/\|/g, '_').replace(/ /g, '_') + '.jpg';
+      const newFileName = result.file_name;
+
+      const { data: fileData } = await supabase.storage
+        .from(BUCKET_ERROR)
+        .download(oldFileName);
+
+      if (fileData) {
+        await supabase.storage
+          .from(BUCKET_GOOD)
+          .upload(newFileName, fileData, { upsert: true });
+          
+        await supabase.storage
+          .from(BUCKET_ERROR)
+          .remove([oldFileName]);
+      }
+
+      setMessage({ type: 'success', text: 'Acta sobrescrita correctamente' });
+      setSelectedActa(null);
+      setVotos([]);
+      await fetchActasError();
+    } catch (err: any) {
+      setMessage({ type: 'error', text: `Error: ${err.message}` });
+    }
+    setIsMigrating(false);
+  }, [selectedActa, supabase, guardarVotos, fetchActasError]);
+
+  // Fetch existing acta details for comparison
+  const fetchExistingActaByKey = useCallback(async (actaKey: string) => {
+    const { data } = await supabase
+      .from('scrutinia_actas')
+      .select('*, scrutinia_acta_votes(*)')
+      .eq('acta_key', actaKey)
+      .maybeSingle();
+    return data;
+  }, [supabase]);
+
   return {
     actasError,
     selectedActa,
@@ -268,6 +358,9 @@ export function useAdminActasError() {
     guardarCamposActa,
     migrarActa,
     descartarActa,
+    impugnarActa,
+    sobrescribirActa,
+    fetchExistingActaByKey,
     setMessage,
   };
 }
