@@ -142,7 +142,7 @@ export function useActasBrowser() {
     // Build acta_key from mesa fields
     const actaKey = `${mesa.provincia}|${mesa.municipio}|${mesa.distrito_censal}|${mesa.seccion}|${mesa.mesa}`;
 
-    // Try to find matching acta in scrutinia_actas
+    // Try to find matching acta in scrutinia_actas_2
     const { data: acta } = await supabase
       .from('scrutinia_actas_2')
       .select('id, votantes_total, votos_nulos, votos_blanco')
