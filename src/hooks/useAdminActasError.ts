@@ -51,6 +51,7 @@ export function useAdminActasError() {
   const supabase = createClient();
 
   const [actasError, setActasError] = useState<ActaError[]>([]);
+  const [actasDefinitivasCount, setActasDefinitivasCount] = useState<number>(0);
   const [selectedActa, setSelectedActa] = useState<ActaError | null>(null);
   const [votos, setVotos] = useState<VotoError[]>([]);
   const [mesasSugeridas, setMesasSugeridas] = useState<MesaSugerida[]>([]);
@@ -71,8 +72,18 @@ export function useAdminActasError() {
     setIsLoading(false);
   }, [supabase]);
 
+  // Fetch count of definitive actas
+  const fetchActasDefinitivasCount = useCallback(async () => {
+    const { count } = await supabase
+      .from('scrutinia_actas_2')
+      .select('*', { count: 'exact', head: true });
+    
+    setActasDefinitivasCount(count || 0);
+  }, [supabase]);
+
   useEffect(() => {
     fetchActasError();
+    fetchActasDefinitivasCount();
   }, []);
 
   // Select an acta and load its votes + image
@@ -234,6 +245,7 @@ export function useAdminActasError() {
       setSelectedActa(null);
       setVotos([]);
       await fetchActasError();
+      await fetchActasDefinitivasCount();
     } catch (err: any) {
       setMessage({ type: 'error', text: `Error inesperado: ${err.message}` });
     }
@@ -263,7 +275,8 @@ export function useAdminActasError() {
     setVotos([]);
     setMessage({ type: 'success', text: 'Acta descartada' });
     await fetchActasError();
-  }, [selectedActa, supabase, fetchActasError]);
+    await fetchActasDefinitivasCount();
+  }, [selectedActa, supabase, fetchActasError, fetchActasDefinitivasCount]);
 
   // Impugnar: move to impugnables table
   const impugnarActa = useCallback(async (motivo: string = '', updates?: Partial<ActaError>) => {
@@ -294,6 +307,7 @@ export function useAdminActasError() {
       setSelectedActa(null);
       setVotos([]);
       await fetchActasError();
+      await fetchActasDefinitivasCount();
     } catch (err: any) {
       setMessage({ type: 'error', text: `Error: ${err.message}` });
     }
@@ -367,6 +381,7 @@ export function useAdminActasError() {
 
   return {
     actasError,
+    actasDefinitivasCount,
     selectedActa,
     votos,
     mesasSugeridas,

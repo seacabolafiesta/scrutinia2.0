@@ -14,6 +14,7 @@ import type { MesaSugerida } from '@/hooks/useAdminActasError';
 export default function RevisionManualPage() {
   const {
     actasError,
+    actasDefinitivasCount,
     selectedActa,
     votos,
     mesasSugeridas,
@@ -242,13 +243,24 @@ export default function RevisionManualPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-white mb-2">
-            Revisión Manual de Actas
-          </h1>
-          <p className="text-slate-400">
-            Revisa, corrige y aprueba actas con errores de transcripción.
-          </p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-white mb-2">
+              Revisión Manual de Actas
+            </h1>
+            <p className="text-slate-400">
+              Revisa, corrige y aprueba actas con errores de transcripción.
+            </p>
+          </div>
+          <div className="bg-emerald-900/20 border border-emerald-800/50 px-5 py-3 rounded-xl flex items-center gap-3">
+            <div className="p-2 bg-emerald-500/10 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-emerald-400 text-xs font-bold uppercase tracking-wider">Actas Definitivas</p>
+              <p className="text-2xl font-mono font-bold text-white">{actasDefinitivasCount}</p>
+            </div>
+          </div>
         </div>
 
         {/* Message banner */}
