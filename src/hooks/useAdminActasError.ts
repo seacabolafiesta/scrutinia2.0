@@ -63,7 +63,7 @@ export function useAdminActasError() {
   const fetchActasError = useCallback(async () => {
     setIsLoading(true);
     const { data } = await supabase
-      .from('scrutinia_actas_error')
+      .from('scrutinia_actas_error_2')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -82,7 +82,7 @@ export function useAdminActasError() {
 
     // Fetch votes
     const { data: votosData } = await supabase
-      .from('scrutinia_acta_votes_error')
+      .from('scrutinia_actas_votos_error')
       .select('party_id, votos')
       .eq('acta_id', acta.id)
       .order('votos', { ascending: false });
@@ -133,7 +133,7 @@ export function useAdminActasError() {
 
     for (const v of votos) {
       await supabase
-        .from('scrutinia_acta_votes_error')
+        .from('scrutinia_actas_votos_error')
         .update({ votos: v.votos })
         .eq('acta_id', selectedActa.id)
         .eq('party_id', v.party_id);
@@ -147,7 +147,7 @@ export function useAdminActasError() {
     if (!selectedActa) return;
 
     await supabase
-      .from('scrutinia_actas_error')
+      .from('scrutinia_actas_error_2')
       .update(campos)
       .eq('id', selectedActa.id);
 
@@ -246,12 +246,12 @@ export function useAdminActasError() {
     if (!selectedActa) return;
 
     await supabase
-      .from('scrutinia_acta_votes_error')
+      .from('scrutinia_actas_votos_error')
       .delete()
       .eq('acta_id', selectedActa.id);
 
     await supabase
-      .from('scrutinia_actas_error')
+      .from('scrutinia_actas_error_2')
       .delete()
       .eq('id', selectedActa.id);
 
@@ -275,7 +275,7 @@ export function useAdminActasError() {
 
       if (updates) {
         await supabase
-          .from('scrutinia_actas_error')
+          .from('scrutinia_actas_error_2')
           .update(updates)
           .eq('id', selectedActa.id);
       }
@@ -311,7 +311,7 @@ export function useAdminActasError() {
       
       if (updates) {
         await supabase
-          .from('scrutinia_actas_error')
+          .from('scrutinia_actas_error_2')
           .update(updates)
           .eq('id', selectedActa.id);
       }
@@ -358,8 +358,8 @@ export function useAdminActasError() {
   // Fetch existing acta details for comparison
   const fetchExistingActaByKey = useCallback(async (actaKey: string) => {
     const { data } = await supabase
-      .from('scrutinia_actas')
-      .select('*, scrutinia_acta_votes(*)')
+      .from('scrutinia_actas_2')
+      .select('*, scrutinia_actas_votos(*)')
       .eq('acta_key', actaKey)
       .maybeSingle();
     return data;

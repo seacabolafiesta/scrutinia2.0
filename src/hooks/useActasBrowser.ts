@@ -144,7 +144,7 @@ export function useActasBrowser() {
 
     // Try to find matching acta in scrutinia_actas
     const { data: acta } = await supabase
-      .from('scrutinia_actas')
+      .from('scrutinia_actas_2')
       .select('id, votantes_total, votos_nulos, votos_blanco')
       .eq('acta_key', actaKey)
       .maybeSingle();
@@ -162,7 +162,7 @@ export function useActasBrowser() {
 
       // Fetch votes
       const { data: votosData } = await supabase
-        .from('scrutinia_acta_votes')
+        .from('scrutinia_actas_votos')
         .select('party_id, votos')
         .eq('acta_id', acta.id)
         .order('votos', { ascending: false });

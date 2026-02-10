@@ -90,12 +90,12 @@ export function useRealtimeScrutiny(provincia?: string) {
       .channel(channelName)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'scrutinia_acta_votes' },
+        { event: '*', schema: 'public', table: 'scrutinia_actas_votos' },
         () => fetchData()
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'scrutinia_actas' },
+        { event: '*', schema: 'public', table: 'scrutinia_actas_2' },
         () => fetchData()
       )
       .subscribe();
