@@ -19,6 +19,12 @@ export interface ActaError {
   votos_nulos: number;
   votos_blanco: number;
   censo_total_electores: number;
+  censo_electores_listas: number;
+  censo_certificaciones_presentadas: number;
+  censo_certificaciones_alta: number;
+  censo_certificaciones_correccion: number;
+  votantes_censados_votaron: number;
+  votantes_interventores_no_censados: number;
   human_message: string | null;
   issues: string[] | null;
   source_file_id: string | null;
@@ -159,6 +165,13 @@ export function useAdminActasError() {
     votantes_total?: number;
     votos_nulos?: number;
     votos_blanco?: number;
+    censo_electores_listas?: number;
+    censo_certificaciones_presentadas?: number;
+    censo_certificaciones_alta?: number;
+    censo_certificaciones_correccion?: number;
+    censo_total_electores?: number;
+    votantes_censados_votaron?: number;
+    votantes_interventores_no_censados?: number;
   }) => {
     if (!selectedActa) return;
 
@@ -253,10 +266,21 @@ export function useAdminActasError() {
   }, [selectedActa, supabase, fetchActasError]);
 
   // Impugnar: move to impugnables table
-  const impugnarActa = useCallback(async (motivo: string = '') => {
+  const impugnarActa = useCallback(async (motivo: string = '', updates?: Partial<ActaError>) => {
     if (!selectedActa) return;
 
     try {
+      // 1. Save local changes if any
+      await guardarVotos();
+
+      if (updates) {
+        await supabase
+          .from('scrutinia_actas_error')
+          .update(updates)
+          .eq('id', selectedActa.id);
+      }
+
+      // 2. Call RPC
       const { data, error } = await supabase.rpc('impugnar_acta_error', {
         p_error_id: selectedActa.id,
         p_motivo: motivo
@@ -276,14 +300,23 @@ export function useAdminActasError() {
   }, [selectedActa, supabase, fetchActasError]);
 
   // Sobrescribir: overwrite existing acta
-  const sobrescribirActa = useCallback(async (existingActaId: string) => {
+  const sobrescribirActa = useCallback(async (existingActaId: string, updates?: Partial<ActaError>) => {
     if (!selectedActa) return;
     setIsMigrating(true);
     setMessage(null);
 
     try {
+      // 1. Save local changes (votes and header fields)
       await guardarVotos();
+      
+      if (updates) {
+        await supabase
+          .from('scrutinia_actas_error')
+          .update(updates)
+          .eq('id', selectedActa.id);
+      }
 
+      // 2. Call RPC
       const { data, error } = await supabase.rpc('sobrescribir_acta_existente', {
         p_error_id: selectedActa.id,
         p_existing_acta_id: existingActaId

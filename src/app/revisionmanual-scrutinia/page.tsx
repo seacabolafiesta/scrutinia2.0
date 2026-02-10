@@ -51,6 +51,16 @@ export default function RevisionManualPage() {
   const [editDistrito, setEditDistrito] = useState('');
   const [editSeccion, setEditSeccion] = useState('');
   const [editMesa, setEditMesa] = useState('');
+  
+  // Censo & Votantes Breakdown
+  const [editCensoListas, setEditCensoListas] = useState(0);
+  const [editCensoCertPresentadas, setEditCensoCertPresentadas] = useState(0);
+  const [editCensoCertAlta, setEditCensoCertAlta] = useState(0);
+  const [editCensoCertCorreccion, setEditCensoCertCorreccion] = useState(0);
+  const [editCensoTotal, setEditCensoTotal] = useState(0);
+  const [editVotantesCensados, setEditVotantesCensados] = useState(0);
+  const [editVotantesInterventores, setEditVotantesInterventores] = useState(0);
+
   const [editVotantes, setEditVotantes] = useState(0);
   const [editNulos, setEditNulos] = useState(0);
   const [editBlanco, setEditBlanco] = useState(0);
@@ -67,6 +77,13 @@ export default function RevisionManualPage() {
     setEditDistrito(acta.distrito_censal || '');
     setEditSeccion(acta.seccion || '');
     setEditMesa(acta.mesa || '');
+    setEditCensoListas(acta.censo_electores_listas || 0);
+    setEditCensoCertPresentadas(acta.censo_certificaciones_presentadas || 0);
+    setEditCensoCertAlta(acta.censo_certificaciones_alta || 0);
+    setEditCensoCertCorreccion(acta.censo_certificaciones_correccion || 0);
+    setEditCensoTotal(acta.censo_total_electores || 0);
+    setEditVotantesCensados(acta.votantes_censados_votaron || 0);
+    setEditVotantesInterventores(acta.votantes_interventores_no_censados || 0);
     setEditVotantes(acta.votantes_total || 0);
     setEditNulos(acta.votos_nulos || 0);
     setEditBlanco(acta.votos_blanco || 0);
@@ -109,13 +126,36 @@ export default function RevisionManualPage() {
       votantes_total: editVotantes,
       votos_nulos: editNulos,
       votos_blanco: editBlanco,
+      censo_electores_listas: editCensoListas,
+      censo_certificaciones_presentadas: editCensoCertPresentadas,
+      censo_certificaciones_alta: editCensoCertAlta,
+      censo_certificaciones_correccion: editCensoCertCorreccion,
+      censo_total_electores: editCensoTotal,
+      votantes_censados_votaron: editVotantesCensados,
+      votantes_interventores_no_censados: editVotantesInterventores,
     });
     setConfirmMigrate(false);
   };
 
   const handleOverwrite = () => {
     if (conflictActa) {
-      sobrescribirActa(conflictActa.id);
+      sobrescribirActa(conflictActa.id, {
+        provincia: editProvincia,
+        municipio: editMunicipio,
+        distrito_censal: editDistrito,
+        seccion: editSeccion,
+        mesa: editMesa,
+        votantes_total: editVotantes,
+        votos_nulos: editNulos,
+        votos_blanco: editBlanco,
+        censo_electores_listas: editCensoListas,
+        censo_certificaciones_presentadas: editCensoCertPresentadas,
+        censo_certificaciones_alta: editCensoCertAlta,
+        censo_certificaciones_correccion: editCensoCertCorreccion,
+        censo_total_electores: editCensoTotal,
+        votantes_censados_votaron: editVotantesCensados,
+        votantes_interventores_no_censados: editVotantesInterventores,
+      });
       setShowConflictModal(false);
       setConflictActa(null);
     }
@@ -131,7 +171,23 @@ export default function RevisionManualPage() {
       setMessage({ type: 'error', text: 'Debes indicar el motivo de la impugnación' });
       return;
     }
-    impugnarActa(impugnarMotivo);
+    impugnarActa(impugnarMotivo, {
+      provincia: editProvincia,
+      municipio: editMunicipio,
+      distrito_censal: editDistrito,
+      seccion: editSeccion,
+      mesa: editMesa,
+      votantes_total: editVotantes,
+      votos_nulos: editNulos,
+      votos_blanco: editBlanco,
+      censo_electores_listas: editCensoListas,
+      censo_certificaciones_presentadas: editCensoCertPresentadas,
+      censo_certificaciones_alta: editCensoCertAlta,
+      censo_certificaciones_correccion: editCensoCertCorreccion,
+      censo_total_electores: editCensoTotal,
+      votantes_censados_votaron: editVotantesCensados,
+      votantes_interventores_no_censados: editVotantesInterventores,
+    });
     setConfirmImpugnar(false);
     setImpugnarMotivo('');
   };
@@ -141,6 +197,26 @@ export default function RevisionManualPage() {
     buscarMesa(q);
   };
   
+  const handleGuardarCabecera = () => {
+    guardarCamposActa({
+      provincia: editProvincia,
+      municipio: editMunicipio,
+      distrito_censal: editDistrito,
+      seccion: editSeccion,
+      mesa: editMesa,
+      votantes_total: editVotantes,
+      votos_nulos: editNulos,
+      votos_blanco: editBlanco,
+      censo_electores_listas: editCensoListas,
+      censo_certificaciones_presentadas: editCensoCertPresentadas,
+      censo_certificaciones_alta: editCensoCertAlta,
+      censo_certificaciones_correccion: editCensoCertCorreccion,
+      censo_total_electores: editCensoTotal,
+      votantes_censados_votaron: editVotantesCensados,
+      votantes_interventores_no_censados: editVotantesInterventores,
+    });
+  };
+
   const handleAutoFixTotal = () => {
     setEditVotantes(totalCalculado);
   };
@@ -426,7 +502,13 @@ export default function RevisionManualPage() {
 
                 {/* Editable fields */}
                 <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-5">
-                  <h4 className="text-white font-bold mb-4">Datos de la mesa</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-white font-bold">Datos de la mesa</h4>
+                    <button onClick={handleGuardarCabecera} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs rounded-lg transition-colors">
+                      <Save className="w-3 h-3" />
+                      Guardar datos
+                    </button>
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs text-slate-400 mb-1">Provincia</label>
@@ -455,7 +537,43 @@ export default function RevisionManualPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 mt-4">
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="col-span-2">
+                       <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Desglose del Censo</h5>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Censo Listas</label>
+                      <input type="number" value={editCensoListas} onChange={(e) => setEditCensoListas(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Censo Total</label>
+                      <input type="number" value={editCensoTotal} onChange={(e) => setEditCensoTotal(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none font-bold" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Cert. Alta</label>
+                      <input type="number" value={editCensoCertAlta} onChange={(e) => setEditCensoCertAlta(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Cert. Corrección</label>
+                      <input type="number" value={editCensoCertCorreccion} onChange={(e) => setEditCensoCertCorreccion(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none" />
+                    </div>
+                     <div>
+                      <label className="block text-xs text-slate-400 mb-1">Votantes Censados</label>
+                      <input type="number" value={editVotantesCensados} onChange={(e) => setEditVotantesCensados(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Interventores No Censados</label>
+                      <input type="number" value={editVotantesInterventores} onChange={(e) => setEditVotantesInterventores(parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 mt-4 border-t border-slate-800 pt-4">
                     <div>
                       <label className="block text-xs text-slate-400 mb-1">Votantes</label>
                       <input type="number" value={editVotantes} onChange={(e) => setEditVotantes(parseInt(e.target.value) || 0)}
