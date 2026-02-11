@@ -100,9 +100,9 @@ export function useAdminActasError() {
 
     setVotos((votosData as VotoError[]) || []);
 
-    // Build image URL from acta_key or renamed_file
-    // Use renamed_file if available (contains timestamp), otherwise fallback to key construction
-    const fileName = acta.renamed_file || acta.acta_key.replace(/\|/g, '_').replace(/ /g, '_') + '.jpg';
+    // Build image URL from acta_key
+    // Files in bucket use: PROVINCIA_MUNICIPIO_DISTRITO_SECCION_MESA.jpg (spaces preserved)
+    const fileName = acta.acta_key.replace(/\|/g, '_') + '.jpg';
     const { data: urlData } = supabase.storage
       .from(BUCKET_ERROR)
       .getPublicUrl(fileName);
@@ -221,7 +221,7 @@ export function useAdminActasError() {
       }
 
       // Move image from RepoError to good bucket
-      const oldFileName = selectedActa.renamed_file || selectedActa.acta_key.replace(/\|/g, '_').replace(/ /g, '_') + '.jpg';
+      const oldFileName = selectedActa.acta_key.replace(/\|/g, '_') + '.jpg';
       const newFileName = result.file_to_move || oldFileName;
 
       // Download from error bucket
@@ -268,7 +268,7 @@ export function useAdminActasError() {
       .eq('id', selectedActa.id);
 
     // Delete image from error bucket
-    const fileName = selectedActa.renamed_file || selectedActa.acta_key.replace(/\|/g, '_').replace(/ /g, '_') + '.jpg';
+    const fileName = selectedActa.acta_key.replace(/\|/g, '_') + '.jpg';
     await supabase.storage.from(BUCKET_ERROR).remove([fileName]);
 
     setSelectedActa(null);
@@ -342,7 +342,7 @@ export function useAdminActasError() {
       if (!result.ok) throw new Error('Error al sobrescribir');
 
       // Move image
-      const oldFileName = selectedActa.renamed_file || selectedActa.acta_key.replace(/\|/g, '_').replace(/ /g, '_') + '.jpg';
+      const oldFileName = selectedActa.acta_key.replace(/\|/g, '_') + '.jpg';
       const newFileName = result.file_name;
 
       const { data: fileData } = await supabase.storage
