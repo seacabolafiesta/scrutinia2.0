@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
-const BUCKET_NAME = 'Repositorio Actas 8F Aragon';
+const BUCKET_GOOD = 'Repositorio Actas 8F Aragon';
+const BUCKET_ERROR = 'RepoError';
 
 export interface ActaResumen {
   id: string;
@@ -145,7 +146,7 @@ export function useActasBrowser() {
     // Try to find matching acta in scrutinia_actas_2
     const { data: acta } = await supabase
       .from('scrutinia_actas_2')
-      .select('id, votantes_total, votos_nulos, votos_blanco')
+      .select('id, votantes_total, votos_nulos, votos_blanco, action')
       .eq('acta_key', actaKey)
       .maybeSingle();
 
@@ -172,8 +173,9 @@ export function useActasBrowser() {
       // Build storage URL
       // Files in bucket use: PROVINCIA_MUNICIPIO_DISTRITO_SECCION_MESA.jpg (spaces preserved)
       const fileName = actaKey.replace(/\|/g, '_') + '.jpg';
+      const bucket = acta.action === 'guardar' ? BUCKET_GOOD : BUCKET_ERROR;
       const { data: urlData } = supabase.storage
-        .from(BUCKET_NAME)
+        .from(bucket)
         .getPublicUrl(fileName);
       actaUrl = urlData?.publicUrl || null;
     }

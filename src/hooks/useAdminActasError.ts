@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { sortByPartidoOrder } from '@/lib/partido-colors';
 
 const BUCKET_ERROR = 'RepoError';
 const BUCKET_GOOD = 'Repositorio Actas 8F Aragon';
@@ -98,7 +99,7 @@ export function useAdminActasError() {
       .eq('acta_id', acta.id)
       .order('votos', { ascending: false });
 
-    setVotos((votosData as VotoError[]) || []);
+    setVotos(sortByPartidoOrder((votosData as VotoError[]) || []));
 
     // Build image URL from acta_key
     // Files in bucket use: PROVINCIA_MUNICIPIO_DISTRITO_SECCION_MESA.jpg (spaces preserved)

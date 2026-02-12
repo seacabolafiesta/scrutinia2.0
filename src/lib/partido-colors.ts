@@ -70,3 +70,30 @@ export function getPartidoHexColor(partido: string): string {
 export function getPartidoDisplayName(partidoId: string): string {
   return PARTIDO_DISPLAY_NAMES[partidoId] || partidoId.replace(/_/g, ' ');
 }
+
+// Orden oficial del acta de escrutinio
+export const PARTIDO_ORDER: string[] = [
+  'PSOE',
+  'COALICION_ARAGONESA',
+  'ESCANOS_EN_BLANCO',
+  'PAR',
+  'PODEMOS_AV',
+  'CHA',
+  'VOX',
+  'PP',
+  'PCTE',
+  'IU_MOV_SUMAR',
+  'EXISTE',
+  'SALF',
+  'PACMA',
+  'MUNDO_MAS_JUSTO',
+  'ETXSBC',
+];
+
+export function sortByPartidoOrder<T extends { party_id: string }>(votos: T[]): T[] {
+  return [...votos].sort((a, b) => {
+    const ia = PARTIDO_ORDER.indexOf(a.party_id);
+    const ib = PARTIDO_ORDER.indexOf(b.party_id);
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  });
+}

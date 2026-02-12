@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Search, Download, Eye, FileText, MapPin, X } from 'lucide-react';
 import { useActasBrowser } from '@/hooks/useActasBrowser';
-import { getPartidoHexColor, getPartidoDisplayName } from '@/lib/partido-colors';
+import { getPartidoHexColor, getPartidoDisplayName, sortByPartidoOrder } from '@/lib/partido-colors';
 
 export default function ActasPage() {
   const {
@@ -153,7 +153,7 @@ export default function ActasPage() {
 
               {/* Party votes */}
               <div className="divide-y divide-slate-800">
-                {actaDetalle.votos
+                {sortByPartidoOrder(actaDetalle.votos)
                   .filter((v) => v.votos > 0)
                   .map((v) => {
                     const hex = getPartidoHexColor(v.party_id);
@@ -174,10 +174,10 @@ export default function ActasPage() {
                       </div>
                     );
                   })}
-                {actaDetalle.votos.filter((v) => v.votos === 0).length > 0 && (
+                {sortByPartidoOrder(actaDetalle.votos).filter((v) => v.votos === 0).length > 0 && (
                   <div className="px-6 py-3">
                     <p className="text-xs text-slate-500">
-                      Sin votos: {actaDetalle.votos.filter((v) => v.votos === 0).map((v) => getPartidoDisplayName(v.party_id)).join(', ')}
+                      Sin votos: {sortByPartidoOrder(actaDetalle.votos).filter((v) => v.votos === 0).map((v) => getPartidoDisplayName(v.party_id)).join(', ')}
                     </p>
                   </div>
                 )}

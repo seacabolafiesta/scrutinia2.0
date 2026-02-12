@@ -10,7 +10,7 @@ import {
 import { useAdminActasError } from '@/hooks/useAdminActasError';
 import { useAdminActasImpugnadas } from '@/hooks/useAdminActasImpugnadas';
 import { useAdminActasSinCenso } from '@/hooks/useAdminActasSinCenso';
-import { getPartidoHexColor, getPartidoDisplayName } from '@/lib/partido-colors';
+import { getPartidoHexColor, getPartidoDisplayName, sortByPartidoOrder } from '@/lib/partido-colors';
 import type { MesaSugerida } from '@/hooks/useAdminActasError';
 
 export default function RevisionManualPage() {
@@ -950,8 +950,7 @@ export default function RevisionManualPage() {
                       <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-5">
                         <h4 className="text-white font-bold mb-3">Votos registrados</h4>
                         <div className="space-y-2">
-                          {selectedImpugnada.votes_snapshot
-                            .sort((a, b) => b.votos - a.votos)
+                          {sortByPartidoOrder(selectedImpugnada.votes_snapshot)
                             .map((v) => (
                             <div key={v.party_id} className="flex items-center gap-3">
                               <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: getPartidoHexColor(v.party_id) }} />
