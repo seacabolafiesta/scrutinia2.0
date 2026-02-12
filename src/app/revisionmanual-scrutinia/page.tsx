@@ -5,10 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowLeft, AlertTriangle, CheckCircle, XCircle, Search,
-  Eye, X, Download, Save, Trash2, ArrowRight, FileText, ShieldAlert, ZoomIn
+  Eye, X, Download, Save, Trash2, ArrowRight, FileText, ShieldAlert, ZoomIn, Users
 } from 'lucide-react';
 import { useAdminActasError } from '@/hooks/useAdminActasError';
 import { useAdminActasImpugnadas } from '@/hooks/useAdminActasImpugnadas';
+import { useAdminActasSinCenso } from '@/hooks/useAdminActasSinCenso';
 import { getPartidoHexColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import type { MesaSugerida } from '@/hooks/useAdminActasError';
 
@@ -45,9 +46,21 @@ export default function RevisionManualPage() {
     getImageUrl: getImpugnadaImageUrl,
   } = useAdminActasImpugnadas();
 
-  const [activeTab, setActiveTab] = useState<'revision' | 'impugnadas'>('revision');
+  const {
+    actas: actasSinCenso,
+    isLoading: isLoadingSinCenso,
+    saving: savingCenso,
+    message: censoMessage,
+    setMessage: setCensoMessage,
+    getImageUrl: getSinCensoImageUrl,
+    saveCenso,
+  } = useAdminActasSinCenso();
+
+  const [activeTab, setActiveTab] = useState<'revision' | 'impugnadas' | 'sincenso'>('revision');
   const [showVisor, setShowVisor] = useState(false);
   const [showImpugnadaVisor, setShowImpugnadaVisor] = useState(false);
+  const [showSinCensoVisor, setShowSinCensoVisor] = useState<string | null>(null);
+  const [censoInputs, setCensoInputs] = useState<Record<string, string>>({});
   const [searchMesa, setSearchMesa] = useState('');
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [confirmMigrate, setConfirmMigrate] = useState(false);
@@ -298,6 +311,17 @@ export default function RevisionManualPage() {
           >
             <ShieldAlert className="w-4 h-4" />
             Impugnadas ({actasImpugnadas.length})
+          </button>
+          <button
+            onClick={() => { setActiveTab('sincenso'); }}
+            className={`px-5 py-3 text-sm font-bold rounded-t-xl transition-colors flex items-center gap-2 ${
+              activeTab === 'sincenso'
+                ? 'bg-slate-800 text-blue-400 border border-slate-700 border-b-slate-950'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            Sin censo ({actasSinCenso.length})
           </button>
         </div>
 
@@ -982,7 +1006,151 @@ export default function RevisionManualPage() {
             )}
           </>
         )}
+
+        {/* ========== TAB: SIN CENSO ========== */}
+        {activeTab === 'sincenso' && (
+          <>
+            {/* Censo message banner */}
+            {censoMessage && (
+              <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+                censoMessage.type === 'success'
+                  ? 'bg-emerald-900/30 border border-emerald-700 text-emerald-300'
+                  : 'bg-red-900/30 border border-red-700 text-red-300'
+              }`}>
+                {censoMessage.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                <span className="text-sm">{censoMessage.text}</span>
+                <button onClick={() => setCensoMessage(null)} className="ml-auto">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {isLoadingSinCenso && (
+              <div className="flex items-center justify-center py-16">
+                <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+
+            {!isLoadingSinCenso && actasSinCenso.length === 0 && (
+              <div className="text-center py-16">
+                <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                <p className="text-white text-xl font-bold">Todas las actas tienen censo</p>
+                <p className="text-slate-400 mt-2">No quedan actas pendientes de asignar censo electoral.</p>
+              </div>
+            )}
+
+            {!isLoadingSinCenso && actasSinCenso.length > 0 && (
+              <div className="space-y-4">
+                <p className="text-slate-400 text-sm mb-4">
+                  Estas actas no tienen el dato de censo electoral. Introduce el censo de cada mesa consultando la foto del acta.
+                </p>
+                {actasSinCenso.map((acta) => {
+                  const imgUrl = getSinCensoImageUrl(acta);
+                  const inputVal = censoInputs[acta.id] ?? '';
+                  return (
+                    <div
+                      key={acta.id}
+                      className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden"
+                    >
+                      <div className="grid md:grid-cols-[280px_1fr] gap-0">
+                        {/* Thumbnail */}
+                        <div className="relative bg-slate-800 aspect-[4/3] md:aspect-auto cursor-pointer group" onClick={() => setShowSinCensoVisor(imgUrl)}>
+                          {imgUrl ? (
+                            <img
+                              src={imgUrl}
+                              alt={`Acta ${acta.acta_key}`}
+                              className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-600">
+                              <FileText className="w-12 h-12" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ZoomIn className="w-8 h-8 text-white drop-shadow-lg" />
+                          </div>
+                        </div>
+
+                        {/* Info + input */}
+                        <div className="p-5 flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-white font-bold text-lg mb-2">
+                              {acta.municipio} · D{acta.distrito_censal} S{acta.seccion} Mesa {acta.mesa}
+                            </h3>
+                            <div className="grid grid-cols-3 gap-3 text-sm mb-4">
+                              <div>
+                                <span className="text-slate-400">Provincia:</span>
+                                <span className="text-white ml-1">{acta.provincia}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400">Votantes:</span>
+                                <span className="text-white ml-1 font-mono">{acta.votantes_total}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400">Origen:</span>
+                                <span className="text-white ml-1 text-xs">{acta.action}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-end gap-3">
+                            <div className="flex-1">
+                              <label className="block text-xs text-blue-300 mb-1.5">Censo total electores</label>
+                              <input
+                                type="number"
+                                value={inputVal}
+                                onChange={(e) => setCensoInputs((prev) => ({ ...prev, [acta.id]: e.target.value }))}
+                                placeholder="Ej: 450"
+                                min={0}
+                                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono"
+                              />
+                            </div>
+                            <button
+                              onClick={() => {
+                                const val = parseInt(inputVal);
+                                if (!isNaN(val) && val > 0) saveCenso(acta.id, val);
+                              }}
+                              disabled={!inputVal || parseInt(inputVal) <= 0 || savingCenso === acta.id}
+                              className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-lg transition-colors flex items-center gap-2"
+                            >
+                              {savingCenso === acta.id ? (
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <Save className="w-4 h-4" />
+                              )}
+                              Guardar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
       </main>
+
+      {/* Fullscreen image visor - Sin Censo */}
+      {showSinCensoVisor && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+          <button onClick={() => setShowSinCensoVisor(null)} className="absolute top-6 right-6 p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-white transition-colors z-50">
+            <X className="w-6 h-6" />
+          </button>
+          <div className="max-w-4xl max-h-[90vh] overflow-auto">
+            <img src={showSinCensoVisor} alt="Acta sin censo" className="w-full rounded-lg" />
+          </div>
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+            <a href={showSinCensoVisor} download target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors">
+              <Download className="w-5 h-5" />
+              Descargar
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Fullscreen image visor - Revision */}
       {showVisor && actaImageUrl && (
