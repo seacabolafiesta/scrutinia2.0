@@ -221,27 +221,6 @@ export function useAdminActasError() {
         return;
       }
 
-      // Move image from RepoError to good bucket
-      const oldFileName = selectedActa.acta_key.replace(/\|/g, '_') + '.jpg';
-      const newFileName = result.file_to_move || oldFileName;
-
-      // Download from error bucket
-      const { data: fileData } = await supabase.storage
-        .from(BUCKET_ERROR)
-        .download(oldFileName);
-
-      if (fileData) {
-        // Upload to good bucket
-        await supabase.storage
-          .from(BUCKET_GOOD)
-          .upload(newFileName, fileData, { upsert: true });
-
-        // Delete from error bucket
-        await supabase.storage
-          .from(BUCKET_ERROR)
-          .remove([oldFileName]);
-      }
-
       setMessage({ type: 'success', text: `Acta migrada correctamente con clave: ${result.acta_key}` });
       setSelectedActa(null);
       setVotos([]);
@@ -341,24 +320,6 @@ export function useAdminActasError() {
       const result = data as { ok: boolean; message: string; file_name: string };
       
       if (!result.ok) throw new Error('Error al sobrescribir');
-
-      // Move image
-      const oldFileName = selectedActa.acta_key.replace(/\|/g, '_') + '.jpg';
-      const newFileName = result.file_name;
-
-      const { data: fileData } = await supabase.storage
-        .from(BUCKET_ERROR)
-        .download(oldFileName);
-
-      if (fileData) {
-        await supabase.storage
-          .from(BUCKET_GOOD)
-          .upload(newFileName, fileData, { upsert: true });
-          
-        await supabase.storage
-          .from(BUCKET_ERROR)
-          .remove([oldFileName]);
-      }
 
       setMessage({ type: 'success', text: 'Acta sobrescrita correctamente' });
       setSelectedActa(null);

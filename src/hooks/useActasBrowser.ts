@@ -96,10 +96,10 @@ export function useActasBrowser() {
       setIsLoading(true);
       let query = supabase
         .from('mesas')
-        .select('id, provincia, municipio, distrito_censal, seccion, mesa, votantes_total, censo_total_electores')
+        .select('id, provincia, municipio, distrito, seccion, mesa, censo_oficial')
         .eq('provincia', provinciaSel)
         .order('municipio')
-        .order('distrito_censal')
+        .order('distrito')
         .order('seccion')
         .order('mesa');
 
@@ -131,7 +131,7 @@ export function useActasBrowser() {
     // Fetch mesa info from mesas table
     const { data: mesa } = await supabase
       .from('mesas')
-      .select('id, provincia, municipio, distrito_censal, seccion, mesa, votantes_total, censo_total_electores')
+      .select('id, provincia, municipio, distrito, seccion, mesa, censo_oficial')
       .eq('id', mesaId)
       .single();
 
@@ -141,7 +141,7 @@ export function useActasBrowser() {
     }
 
     // Build acta_key from mesa fields
-    const actaKey = `${mesa.provincia}|${mesa.municipio}|${mesa.distrito_censal}|${mesa.seccion}|${mesa.mesa}`;
+    const actaKey = `${mesa.provincia}|${mesa.municipio}|${mesa.distrito}|${mesa.seccion}|${mesa.mesa}`;
 
     // Try to find matching acta in scrutinia_actas_2
     const { data: acta } = await supabase
@@ -154,7 +154,7 @@ export function useActasBrowser() {
     let actaUrl: string | null = null;
     let votosNulos = 0;
     let votosBlanco = 0;
-    let votantesTotal = mesa.votantes_total || 0;
+    let votantesTotal = 0;
 
     if (acta) {
       votosNulos = acta.votos_nulos || 0;
@@ -185,11 +185,11 @@ export function useActasBrowser() {
       acta_key: actaKey,
       provincia: mesa.provincia,
       municipio: mesa.municipio,
-      distrito_censal: mesa.distrito_censal,
+      distrito_censal: mesa.distrito,
       seccion: mesa.seccion,
       mesa: mesa.mesa,
       votantes_total: votantesTotal,
-      censo_total_electores: mesa.censo_total_electores,
+      censo_total_electores: mesa.censo_oficial || 0,
       votos_nulos: votosNulos,
       votos_blanco: votosBlanco,
       votos,
