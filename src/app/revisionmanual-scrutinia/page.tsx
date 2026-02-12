@@ -5,9 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowLeft, AlertTriangle, CheckCircle, XCircle, Search,
-  Eye, X, Download, Save, Trash2, ArrowRight, FileText
+  Eye, X, Download, Save, Trash2, ArrowRight, FileText, ShieldAlert, ZoomIn
 } from 'lucide-react';
 import { useAdminActasError } from '@/hooks/useAdminActasError';
+import { useAdminActasImpugnadas } from '@/hooks/useAdminActasImpugnadas';
 import { getPartidoHexColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import type { MesaSugerida } from '@/hooks/useAdminActasError';
 
@@ -35,7 +36,18 @@ export default function RevisionManualPage() {
     setMessage,
   } = useAdminActasError();
 
+  const {
+    actasImpugnadas,
+    isLoading: isLoadingImpugnadas,
+    selectedActa: selectedImpugnada,
+    actaImageUrl: impugnadaImageUrl,
+    selectActa: selectImpugnada,
+    getImageUrl: getImpugnadaImageUrl,
+  } = useAdminActasImpugnadas();
+
+  const [activeTab, setActiveTab] = useState<'revision' | 'impugnadas'>('revision');
   const [showVisor, setShowVisor] = useState(false);
+  const [showImpugnadaVisor, setShowImpugnadaVisor] = useState(false);
   const [searchMesa, setSearchMesa] = useState('');
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [confirmMigrate, setConfirmMigrate] = useState(false);
@@ -262,6 +274,35 @@ export default function RevisionManualPage() {
             </div>
           </div>
         </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-8 border-b border-slate-800 pb-0">
+          <button
+            onClick={() => { setActiveTab('revision'); selectImpugnada(null); }}
+            className={`px-5 py-3 text-sm font-bold rounded-t-xl transition-colors flex items-center gap-2 ${
+              activeTab === 'revision'
+                ? 'bg-slate-800 text-amber-400 border border-slate-700 border-b-slate-950'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4" />
+            Revisión ({actasError.length})
+          </button>
+          <button
+            onClick={() => { setActiveTab('impugnadas'); }}
+            className={`px-5 py-3 text-sm font-bold rounded-t-xl transition-colors flex items-center gap-2 ${
+              activeTab === 'impugnadas'
+                ? 'bg-slate-800 text-red-400 border border-slate-700 border-b-slate-950'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <ShieldAlert className="w-4 h-4" />
+            Impugnadas ({actasImpugnadas.length})
+          </button>
+        </div>
+
+        {/* ========== TAB: REVISION ========== */}
+        {activeTab === 'revision' && (<>
 
         {/* Message banner */}
         {message && (
@@ -750,9 +791,200 @@ export default function RevisionManualPage() {
             </div>
           </div>
         )}
+
+        </>)}
+
+        {/* ========== TAB: IMPUGNADAS ========== */}
+        {activeTab === 'impugnadas' && (
+          <>
+            {isLoadingImpugnadas && (
+              <div className="flex items-center justify-center py-16">
+                <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+
+            {!isLoadingImpugnadas && actasImpugnadas.length === 0 && (
+              <div className="text-center py-16">
+                <ShieldAlert className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <p className="text-white text-xl font-bold">No hay actas impugnadas</p>
+                <p className="text-slate-400 mt-2">Ningún acta ha sido marcada como impugnable.</p>
+              </div>
+            )}
+
+            {/* Impugnada detail view */}
+            {selectedImpugnada && (
+              <div>
+                <button
+                  onClick={() => selectImpugnada(null)}
+                  className="mb-6 text-slate-400 hover:text-white flex items-center gap-2 text-sm transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Volver al listado
+                </button>
+
+                <div className="grid lg:grid-cols-2 gap-8">
+                  {/* Image */}
+                  <div className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden">
+                    <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-red-400" />
+                        <h4 className="text-white font-bold">Imagen del Acta</h4>
+                      </div>
+                      {impugnadaImageUrl && (
+                        <div className="flex gap-2">
+                          <button onClick={() => setShowImpugnadaVisor(true)} className="p-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">
+                            <ZoomIn className="w-4 h-4 text-white" />
+                          </button>
+                          <a href={impugnadaImageUrl} download target="_blank" rel="noopener noreferrer" className="p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">
+                            <Download className="w-4 h-4 text-white" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      {impugnadaImageUrl ? (
+                        <img
+                          src={impugnadaImageUrl}
+                          alt="Acta impugnada"
+                          className="w-full rounded-lg border border-slate-700 cursor-pointer"
+                          onClick={() => setShowImpugnadaVisor(true)}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="text-center py-12 text-slate-500">
+                          <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                          <p>Imagen no disponible</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-6">
+                    <div className="bg-red-900/20 border border-red-800/50 rounded-xl p-5">
+                      <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
+                        <ShieldAlert className="w-4 h-4" />
+                        Motivo de impugnación
+                      </h4>
+                      <p className="text-red-200 text-sm whitespace-pre-wrap">{selectedImpugnada.motivo_impugnacion || 'Sin motivo especificado'}</p>
+                    </div>
+
+                    <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-5">
+                      <h4 className="text-white font-bold mb-3">Datos de la mesa</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-slate-400">Provincia:</span>
+                          <span className="text-white ml-2 font-medium">{selectedImpugnada.provincia}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Municipio:</span>
+                          <span className="text-white ml-2 font-medium">{selectedImpugnada.municipio}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Distrito:</span>
+                          <span className="text-white ml-2 font-medium">{selectedImpugnada.distrito_censal}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Sección:</span>
+                          <span className="text-white ml-2 font-medium">{selectedImpugnada.seccion}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Mesa:</span>
+                          <span className="text-white ml-2 font-medium">{selectedImpugnada.mesa}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Votantes:</span>
+                          <span className="text-white ml-2 font-mono font-bold">{selectedImpugnada.votantes_total}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Nulos:</span>
+                          <span className="text-white ml-2 font-mono">{selectedImpugnada.votos_nulos}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">En blanco:</span>
+                          <span className="text-white ml-2 font-mono">{selectedImpugnada.votos_blanco}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {selectedImpugnada.votes_snapshot && selectedImpugnada.votes_snapshot.length > 0 && (
+                      <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-5">
+                        <h4 className="text-white font-bold mb-3">Votos registrados</h4>
+                        <div className="space-y-2">
+                          {selectedImpugnada.votes_snapshot
+                            .sort((a, b) => b.votos - a.votos)
+                            .map((v) => (
+                            <div key={v.party_id} className="flex items-center gap-3">
+                              <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: getPartidoHexColor(v.party_id) }} />
+                              <span className="text-sm text-white flex-1 truncate">{getPartidoDisplayName(v.party_id)}</span>
+                              <span className="text-white font-mono text-sm font-bold">{v.votos}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="text-xs text-slate-500">
+                      Impugnada el {new Date(selectedImpugnada.created_at).toLocaleString('es-ES')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Impugnadas gallery list */}
+            {!isLoadingImpugnadas && !selectedImpugnada && actasImpugnadas.length > 0 && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {actasImpugnadas.map((acta) => {
+                  const imgUrl = getImpugnadaImageUrl(acta);
+                  return (
+                    <button
+                      key={acta.id}
+                      onClick={() => selectImpugnada(acta)}
+                      className="text-left bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden hover:border-red-500/50 transition-colors group"
+                    >
+                      <div className="aspect-[4/3] bg-slate-800 relative overflow-hidden">
+                        {imgUrl ? (
+                          <img
+                            src={imgUrl}
+                            alt={`Acta ${acta.acta_key}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-600">
+                            <FileText className="w-12 h-12" />
+                          </div>
+                        )}
+                        <div className="absolute top-3 right-3 p-1.5 bg-red-600 rounded-lg">
+                          <ShieldAlert className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-white font-bold text-sm mb-1 truncate">
+                          {acta.municipio} · D{acta.distrito_censal} S{acta.seccion} Mesa {acta.mesa}
+                        </h3>
+                        <p className="text-red-400 text-xs mb-2 line-clamp-2">
+                          {acta.motivo_impugnacion || 'Sin motivo'}
+                        </p>
+                        <p className="text-slate-500 text-xs">
+                          {new Date(acta.created_at).toLocaleDateString('es-ES')}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
       </main>
 
-      {/* Fullscreen image visor */}
+      {/* Fullscreen image visor - Revision */}
       {showVisor && actaImageUrl && (
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
           <button onClick={() => setShowVisor(false)} className="absolute top-6 right-6 p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-white transition-colors z-50">
@@ -764,6 +996,25 @@ export default function RevisionManualPage() {
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
             <a href={actaImageUrl} download target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg transition-colors">
+              <Download className="w-5 h-5" />
+              Descargar
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen image visor - Impugnadas */}
+      {showImpugnadaVisor && impugnadaImageUrl && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+          <button onClick={() => setShowImpugnadaVisor(false)} className="absolute top-6 right-6 p-2 bg-slate-800 hover:bg-slate-700 rounded-full text-white transition-colors z-50">
+            <X className="w-6 h-6" />
+          </button>
+          <div className="max-w-4xl max-h-[90vh] overflow-auto">
+            <img src={impugnadaImageUrl} alt="Acta impugnada" className="w-full rounded-lg" />
+          </div>
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+            <a href={impugnadaImageUrl} download target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors">
               <Download className="w-5 h-5" />
               Descargar
             </a>
