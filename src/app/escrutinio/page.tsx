@@ -14,7 +14,14 @@ import { calculateDHondt, calculatePercentages } from '@/lib/dhondt';
 import { getEscañosProvincia, type Provincia } from '@/lib/elections-config';
 
 // ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
-const SHOW_AUDIT_MODE = true;
+const SHOW_AUDIT_MODE = false;
+
+const CENSO_TOTAL: Record<string, number> = {
+  ARAGON: 991893,
+  HUESCA: 165992,
+  TERUEL: 100430,
+  ZARAGOZA: 725471,
+};
 
 export default function EscrutinioPage() {
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'ARAGON'>('ARAGON');
@@ -47,7 +54,10 @@ export default function EscrutinioPage() {
   const totalVotos = Object.values(votosMap).reduce((sum, v) => sum + v, 0);
   const totalMesas = 2213;
   const actasEscrutadas = estadisticas.actas_escrutadas;
-  const porcentajeEscrutado = (actasEscrutadas / totalMesas) * 100;
+  const censoKey = provinciaSeleccionada === 'ARAGON' ? 'ARAGON' : provinciaSeleccionada;
+  const censoTotal = CENSO_TOTAL[censoKey] || CENSO_TOTAL.ARAGON;
+  const censoEscrutado = estadisticas.total_censo || 0;
+  const porcentajeEscrutado = censoTotal > 0 ? (censoEscrutado / censoTotal) * 100 : 0;
   const participacion = estadisticas.participacion;
 
   const mayoriaAbsoluta = Math.floor(totalEscaños / 2) + 1;
@@ -150,6 +160,8 @@ export default function EscrutinioPage() {
               participacion={participacion}
               actasEscrutadas={actasEscrutadas}
               totalMesas={totalMesas}
+              censoEscrutado={censoEscrutado}
+              censoTotal={censoTotal}
               ultimaActualizacion={ultimaActualizacion}
             />
 

@@ -32,20 +32,19 @@ export function useRealtimeScrutiny(provincia?: string) {
   const fetchData = useCallback(async () => {
     const provinciaUpper = provincia?.toUpperCase();
 
+    const filterProvincia = provinciaUpper || 'ARAGON';
+
     // Run both queries in PARALLEL
     const resultadosQuery = supabase
       .from('resultados_escrutinio')
       .select('*')
+      .eq('provincia', filterProvincia)
       .order('votos_totales', { ascending: false });
-
-    if (provinciaUpper) {
-      resultadosQuery.eq('provincia', provinciaUpper);
-    }
 
     const statsQuery = supabase
       .from('estadisticas_escrutinio')
       .select('*')
-      .eq('provincia', provinciaUpper || 'ARAGON')
+      .eq('provincia', filterProvincia)
       .maybeSingle();
 
     const [resultadosRes, statsRes] = await Promise.all([resultadosQuery, statsQuery]);

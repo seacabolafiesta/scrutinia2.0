@@ -7,6 +7,8 @@ interface HeaderEstadoProps {
   participacion: number;
   actasEscrutadas: number;
   totalMesas: number;
+  censoEscrutado?: number;
+  censoTotal?: number;
   ultimaActualizacion?: Date;
 }
 
@@ -15,6 +17,8 @@ export default function HeaderEstado({
   participacion,
   actasEscrutadas,
   totalMesas,
+  censoEscrutado,
+  censoTotal,
   ultimaActualizacion
 }: HeaderEstadoProps) {
   return (
@@ -30,7 +34,9 @@ export default function HeaderEstado({
               {porcentajeEscrutado.toFixed(2)}%
             </p>
             <p className="text-xs text-slate-500">
-              {actasEscrutadas.toLocaleString()} / {totalMesas.toLocaleString()} mesas
+              {censoEscrutado && censoTotal
+                ? `${censoEscrutado.toLocaleString('es-ES')} / ${censoTotal.toLocaleString('es-ES')} electores`
+                : `${actasEscrutadas.toLocaleString()} / ${totalMesas.toLocaleString()} mesas`}
             </p>
           </div>
         </div>
