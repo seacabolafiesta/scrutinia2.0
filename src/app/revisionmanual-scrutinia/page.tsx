@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -70,6 +70,19 @@ export default function RevisionManualPage() {
   // Conflict / Duplicate State
   const [conflictActa, setConflictActa] = useState<any>(null);
   const [showConflictModal, setShowConflictModal] = useState(false);
+
+  // ESC to close fullscreen visors
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowVisor(false);
+        setShowImpugnadaVisor(false);
+        setShowSinCensoVisor(null);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
 
   // Editable overrides
   const [editProvincia, setEditProvincia] = useState('');
