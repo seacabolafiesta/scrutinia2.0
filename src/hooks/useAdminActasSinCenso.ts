@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 const BUCKET_GOOD = 'Repositorio Actas 8F Aragon';
+const BUCKET_ERROR = 'RepoError';
 
 export interface ActaSinCenso {
   id: string;
@@ -47,8 +48,9 @@ export function useAdminActasSinCenso() {
 
   const getImageUrl = useCallback((acta: ActaSinCenso) => {
     const fileName = acta.acta_key.replace(/\|/g, '_') + '.jpg';
+    const bucket = acta.action === 'guardar' ? BUCKET_GOOD : BUCKET_ERROR;
     const { data: urlData } = supabase.storage
-      .from(BUCKET_GOOD)
+      .from(bucket)
       .getPublicUrl(fileName);
     return urlData?.publicUrl || null;
   }, [supabase]);
