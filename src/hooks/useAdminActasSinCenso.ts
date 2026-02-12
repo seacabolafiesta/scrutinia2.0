@@ -46,7 +46,7 @@ export function useAdminActasSinCenso() {
   }, []);
 
   const getImageUrl = useCallback((acta: ActaSinCenso) => {
-    const fileName = acta.renamed_file || acta.acta_key.replace(/\|/g, '_') + '.jpg';
+    const fileName = acta.acta_key.replace(/\|/g, '_') + '.jpg';
     const { data: urlData } = supabase.storage
       .from(BUCKET_GOOD)
       .getPublicUrl(fileName);
