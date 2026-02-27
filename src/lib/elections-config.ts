@@ -28,3 +28,10 @@ export function getEscañosProvincia(provincia: Provincia): number {
 export function getBarreraElectoral(): number {
   return ARAGON_2026_CONFIG.barreraElectoral;
 }
+
+// Mapping from uppercase DB province names to seats
+export const ESCANOS_POR_PROVINCIA: Record<string, number> = {
+  ZARAGOZA: 35,
+  HUESCA: 18,
+  TERUEL: 14,
+};

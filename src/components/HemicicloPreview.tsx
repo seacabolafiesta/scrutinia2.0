@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useRealtimeScrutiny } from '@/hooks/useRealtimeScrutiny';
-import { calculateDHondt } from '@/lib/dhondt';
+import { calculateDHondt, type SeatsResult } from '@/lib/dhondt';
+import { ESCANOS_POR_PROVINCIA } from '@/lib/elections-config';
 import { getPartidoHexColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import Hemiciclo from '@/components/escrutinio/Hemiciclo';
 
@@ -69,7 +70,7 @@ function GrayHemiciclo() {
 }
 
 export default function HemicicloPreview() {
-  const { resultados, isLoading } = useRealtimeScrutiny();
+  const { resultados, resultadosPorProvincia, isLoading } = useRealtimeScrutiny();
 
   const votosMap: { [partido: string]: number } = {};
   resultados.forEach((r) => {
@@ -77,7 +78,21 @@ export default function HemicicloPreview() {
   });
 
   const totalEscaños = 67;
-  const { seats } = calculateDHondt(votosMap, totalEscaños, 0.03);
+  // D'Hondt per province then sum (circunscripción = provincia)
+  let seats: SeatsResult;
+  if (Object.keys(resultadosPorProvincia).length > 0) {
+    seats = {};
+    Object.entries(resultadosPorProvincia).forEach(([prov, votosProvMap]) => {
+      const escanosProv = ESCANOS_POR_PROVINCIA[prov] || 0;
+      if (escanosProv === 0) return;
+      const { seats: provSeats } = calculateDHondt(votosProvMap, escanosProv, 0.03);
+      Object.entries(provSeats).forEach(([partido, n]) => {
+        seats[partido] = (seats[partido] || 0) + n;
+      });
+    });
+  } else {
+    ({ seats } = calculateDHondt(votosMap, totalEscaños, 0.03));
+  }
   const hasData = Object.values(seats).some((s) => s > 0);
 
   if (isLoading) {
@@ -89,7 +104,7 @@ export default function HemicicloPreview() {
   }
 
   // ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
-  const SHOW_AUDIT_MODE = true;
+  const SHOW_AUDIT_MODE = false;
 
   return (
     <div>

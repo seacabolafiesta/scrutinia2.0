@@ -22,8 +22,14 @@ const defaultStats: EstadisticasEscrutinio = {
   ultima_actualizacion: null,
 };
 
+// Per-province vote breakdown (used for correct D'Hondt when viewing ARAGON)
+export interface VotosPorProvincia {
+  [provincia: string]: { [candidatura: string]: number };
+}
+
 export function useRealtimeScrutiny(provincia?: string) {
   const [resultados, setResultados] = useState<ResultadoPublico[]>([]);
+  const [resultadosPorProvincia, setResultadosPorProvincia] = useState<VotosPorProvincia>({});
   const [estadisticas, setEstadisticas] = useState<EstadisticasEscrutinio>(defaultStats);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
@@ -34,7 +40,7 @@ export function useRealtimeScrutiny(provincia?: string) {
 
     const filterProvincia = provinciaUpper || 'ARAGON';
 
-    // Run both queries in PARALLEL
+    // Run queries in PARALLEL
     const resultadosQuery = supabase
       .from('resultados_escrutinio')
       .select('*')
@@ -47,12 +53,36 @@ export function useRealtimeScrutiny(provincia?: string) {
       .eq('provincia', filterProvincia)
       .maybeSingle();
 
-    const [resultadosRes, statsRes] = await Promise.all([resultadosQuery, statsQuery]);
+    // When viewing ARAGON, also fetch per-province breakdown for correct D'Hondt
+    const perProvQuery = !provinciaUpper
+      ? supabase
+          .from('resultados_escrutinio')
+          .select('provincia, candidatura, votos_totales')
+          .in('provincia', ['ZARAGOZA', 'HUESCA', 'TERUEL'])
+      : null;
+
+    const [resultadosRes, statsRes, perProvRes] = await Promise.all([
+      resultadosQuery,
+      statsQuery,
+      perProvQuery,
+    ]);
 
     if (resultadosRes.error) {
       console.error('Error fetching resultados:', resultadosRes.error);
     } else {
       setResultados(resultadosRes.data || []);
+    }
+
+    // Build per-province vote map
+    if (perProvRes?.data) {
+      const byProv: VotosPorProvincia = {};
+      perProvRes.data.forEach((r: any) => {
+        if (!byProv[r.provincia]) byProv[r.provincia] = {};
+        byProv[r.provincia][r.candidatura] = r.votos_totales || 0;
+      });
+      setResultadosPorProvincia(byProv);
+    } else if (provinciaUpper) {
+      setResultadosPorProvincia({});
     }
 
     if (statsRes.data) {
@@ -107,5 +137,5 @@ export function useRealtimeScrutiny(provincia?: string) {
     };
   }, [provincia, fetchData, supabase]);
 
-  return { resultados, estadisticas, isLoading };
+  return { resultados, resultadosPorProvincia, estadisticas, isLoading };
 }

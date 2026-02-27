@@ -10,8 +10,8 @@ import TablaResultados from '@/components/escrutinio/TablaResultados';
 import Pactometro from '@/components/escrutinio/Pactometro';
 import SelectorGeografico from '@/components/escrutinio/SelectorGeografico';
 import { useRealtimeScrutiny } from '@/hooks/useRealtimeScrutiny';
-import { calculateDHondt, calculatePercentages } from '@/lib/dhondt';
-import { getEscañosProvincia, type Provincia } from '@/lib/elections-config';
+import { calculateDHondt, calculatePercentages, type SeatsResult } from '@/lib/dhondt';
+import { getEscañosProvincia, ESCANOS_POR_PROVINCIA, type Provincia } from '@/lib/elections-config';
 
 // ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
 const SHOW_AUDIT_MODE = false;
@@ -27,7 +27,7 @@ export default function EscrutinioPage() {
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'ARAGON'>('ARAGON');
   const [ultimaActualizacion, setUltimaActualizacion] = useState<Date>(new Date());
 
-  const { resultados, estadisticas, isLoading } = useRealtimeScrutiny(
+  const { resultados, resultadosPorProvincia, estadisticas, isLoading } = useRealtimeScrutiny(
     provinciaSeleccionada !== 'ARAGON' ? provinciaSeleccionada : undefined
   );
 
@@ -48,7 +48,22 @@ export default function EscrutinioPage() {
     ? getEscañosProvincia(provinciaSeleccionada)
     : 67;
 
-  const { seats } = calculateDHondt(votosMap, totalEscaños, 0.03);
+  // When ARAGON: D'Hondt per province then sum (circunscripción = provincia)
+  // When province: D'Hondt on that province directly
+  let seats: SeatsResult;
+  if (provinciaSeleccionada === 'ARAGON' && Object.keys(resultadosPorProvincia).length > 0) {
+    seats = {};
+    Object.entries(resultadosPorProvincia).forEach(([prov, votosProvMap]) => {
+      const escanosProv = ESCANOS_POR_PROVINCIA[prov] || 0;
+      if (escanosProv === 0) return;
+      const { seats: provSeats } = calculateDHondt(votosProvMap, escanosProv, 0.03);
+      Object.entries(provSeats).forEach(([partido, n]) => {
+        seats[partido] = (seats[partido] || 0) + n;
+      });
+    });
+  } else {
+    ({ seats } = calculateDHondt(votosMap, totalEscaños, 0.03));
+  }
   const porcentajes = calculatePercentages(votosMap);
 
   const totalVotos = Object.values(votosMap).reduce((sum, v) => sum + v, 0);
@@ -174,7 +189,7 @@ export default function EscrutinioPage() {
               votos={votosMap}
               porcentajes={porcentajes}
               escaños={seats}
-              showEscaños={provinciaSeleccionada !== 'ARAGON'}
+              showEscaños={true}
             />
 
             <Link
