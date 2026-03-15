@@ -4,16 +4,14 @@ export const PARTIDO_HEX_COLORS: { [key: string]: string } = {
   'PSOE':                '#E30613',   // Rojo PSOE oficial
   'VOX':                 '#63BE21',   // Verde lima VOX oficial
   'SALF':                '#7B3F00',   // Marrón SALF oficial
-  'CHA':                 '#008A29',   // Verde CHA oficial
-  'PAR':                 '#003DA5',   // Azul PAR oficial
   'PODEMOS_AV':          '#6B2D6B',   // Morado Podemos oficial
-  'IU_MOV_SUMAR':        '#E6005C',   // Magenta Sumar oficial
-  'EXISTE':              '#00857C',   // Verde teal Aragón Existe
+  'IU_MS_VQ':            '#E6005C',   // Magenta IU-Sumar-Verdes Equo
   'PACMA':               '#00A651',   // Verde PACMA oficial
-  'COALICION_ARAGONESA': '#D4A017',   // Dorado Coalición Aragonesa
-  'PCTE':                '#8B0000',   // Rojo oscuro PCTE
-  'ETXSBC':              '#2E8B57',   // Verde ETXSBC
-  'MUNDO_MAS_JUSTO':     '#4B0082',   // Índigo
+  'PCAS_TC':             '#8B0045',   // Granate PCAS-TC
+  'UPL':                 '#7B2D8E',   // Púrpura UPL
+  'SORIA_YA':            '#00857C',   // Verde teal Soria Ya
+  'POR_AVILA':           '#D4A017',   // Dorado Por Ávila
+  'CS':                  '#EB6109',   // Naranja Ciudadanos
   'ESCANOS_EN_BLANCO':   '#94A3B8',   // Gris slate
 };
 
@@ -23,35 +21,31 @@ export const PARTIDO_COLORS: { [key: string]: { bg: string; text: string; border
   'PSOE':                { bg: 'bg-red-600',     text: 'text-white', border: 'border-red-600' },
   'VOX':                 { bg: 'bg-lime-500',    text: 'text-white', border: 'border-lime-500' },
   'SALF':                { bg: 'bg-amber-900',   text: 'text-white', border: 'border-amber-900' },
-  'CHA':                 { bg: 'bg-green-600',   text: 'text-white', border: 'border-green-600' },
-  'PAR':                 { bg: 'bg-blue-800',    text: 'text-white', border: 'border-blue-800' },
   'PODEMOS_AV':          { bg: 'bg-purple-700',  text: 'text-white', border: 'border-purple-700' },
-  'IU_MOV_SUMAR':        { bg: 'bg-pink-600',    text: 'text-white', border: 'border-pink-600' },
-  'EXISTE':              { bg: 'bg-teal-600',    text: 'text-white', border: 'border-teal-600' },
+  'IU_MS_VQ':            { bg: 'bg-pink-600',    text: 'text-white', border: 'border-pink-600' },
   'PACMA':               { bg: 'bg-emerald-500', text: 'text-white', border: 'border-emerald-500' },
-  'COALICION_ARAGONESA': { bg: 'bg-yellow-600',  text: 'text-white', border: 'border-yellow-600' },
-  'PCTE':                { bg: 'bg-red-900',     text: 'text-white', border: 'border-red-900' },
-  'ETXSBC':              { bg: 'bg-green-700',   text: 'text-white', border: 'border-green-700' },
-  'MUNDO_MAS_JUSTO':     { bg: 'bg-indigo-700',  text: 'text-white', border: 'border-indigo-700' },
+  'PCAS_TC':             { bg: 'bg-rose-900',    text: 'text-white', border: 'border-rose-900' },
+  'UPL':                 { bg: 'bg-purple-800',  text: 'text-white', border: 'border-purple-800' },
+  'SORIA_YA':            { bg: 'bg-teal-600',    text: 'text-white', border: 'border-teal-600' },
+  'POR_AVILA':           { bg: 'bg-yellow-600',  text: 'text-white', border: 'border-yellow-600' },
+  'CS':                  { bg: 'bg-orange-500',  text: 'text-white', border: 'border-orange-500' },
   'ESCANOS_EN_BLANCO':   { bg: 'bg-slate-400',   text: 'text-black', border: 'border-slate-400' },
 };
 
 // Mapeo de IDs a nombres bonitos para mostrar
 export const PARTIDO_DISPLAY_NAMES: { [key: string]: string } = {
-  'PSOE': 'PSOE',
   'PP': 'PP',
+  'PSOE': 'PSOE',
   'VOX': 'VOX',
   'PODEMOS_AV': 'Podemos-AV',
-  'IU_MOV_SUMAR': 'IU-Sumar',
-  'PAR': 'PAR',
-  'CHA': 'CHA',
-  'EXISTE': 'Existe',
+  'IU_MS_VQ': 'IU-Sumar-VQ',
   'SALF': 'SALF',
   'PACMA': 'PACMA',
-  'COALICION_ARAGONESA': 'C. Aragonesa',
-  'PCTE': 'PCTE',
-  'ETXSBC': 'ETXSBC',
-  'MUNDO_MAS_JUSTO': 'Mundo+Justo',
+  'PCAS_TC': 'PCAS-TC',
+  'UPL': 'UPL',
+  'SORIA_YA': 'Soria Ya',
+  'POR_AVILA': 'Por Ávila',
+  'CS': 'Ciudadanos',
   'ESCANOS_EN_BLANCO': 'Esc. Blanco',
 };
 
@@ -73,21 +67,19 @@ export function getPartidoDisplayName(partidoId: string): string {
 
 // Orden oficial del acta de escrutinio
 export const PARTIDO_ORDER: string[] = [
-  'PSOE',
-  'COALICION_ARAGONESA',
-  'ESCANOS_EN_BLANCO',
-  'PAR',
-  'PODEMOS_AV',
-  'CHA',
-  'VOX',
   'PP',
-  'PCTE',
-  'IU_MOV_SUMAR',
-  'EXISTE',
+  'PSOE',
+  'VOX',
+  'PODEMOS_AV',
+  'IU_MS_VQ',
   'SALF',
   'PACMA',
-  'MUNDO_MAS_JUSTO',
-  'ETXSBC',
+  'PCAS_TC',
+  'ESCANOS_EN_BLANCO',
+  'UPL',
+  'SORIA_YA',
+  'POR_AVILA',
+  'CS',
 ];
 
 export function sortByPartidoOrder<T extends { party_id: string }>(votos: T[]): T[] {

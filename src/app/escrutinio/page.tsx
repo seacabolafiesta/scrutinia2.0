@@ -14,21 +14,27 @@ import { calculateDHondt, calculatePercentages, type SeatsResult } from '@/lib/d
 import { getEscañosProvincia, ESCANOS_POR_PROVINCIA, type Provincia } from '@/lib/elections-config';
 
 // ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
-const SHOW_AUDIT_MODE = false;
+const SHOW_AUDIT_MODE = true;
 
 const CENSO_TOTAL: Record<string, number> = {
-  ARAGON: 991893,
-  HUESCA: 165992,
-  TERUEL: 100430,
-  ZARAGOZA: 725471,
+  CYL: 2097768,
+  VALLADOLID: 414548,
+  LEON: 356842,
+  BURGOS: 274326,
+  SALAMANCA: 258946,
+  AVILA: 122126,
+  PALENCIA: 121987,
+  SEGOVIA: 122459,
+  ZAMORA: 126963,
+  SORIA: 68635,
 };
 
 export default function EscrutinioPage() {
-  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'ARAGON'>('ARAGON');
+  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'CYL'>('CYL');
   const [ultimaActualizacion, setUltimaActualizacion] = useState<Date>(new Date());
 
   const { resultados, resultadosPorProvincia, estadisticas, isLoading } = useRealtimeScrutiny(
-    provinciaSeleccionada !== 'ARAGON' ? provinciaSeleccionada : undefined
+    provinciaSeleccionada !== 'CYL' ? provinciaSeleccionada : undefined
   );
 
   useEffect(() => {
@@ -44,14 +50,14 @@ export default function EscrutinioPage() {
     votosMap[r.candidatura] = r.votos_totales || 0;
   });
 
-  const totalEscaños = provinciaSeleccionada !== 'ARAGON' 
+  const totalEscaños = provinciaSeleccionada !== 'CYL' 
     ? getEscañosProvincia(provinciaSeleccionada)
-    : 67;
+    : 82;
 
-  // When ARAGON: D'Hondt per province then sum (circunscripción = provincia)
+  // When CYL: D'Hondt per province then sum (circunscripción = provincia)
   // When province: D'Hondt on that province directly
   let seats: SeatsResult;
-  if (provinciaSeleccionada === 'ARAGON' && Object.keys(resultadosPorProvincia).length > 0) {
+  if (provinciaSeleccionada === 'CYL' && Object.keys(resultadosPorProvincia).length > 0) {
     seats = {};
     Object.entries(resultadosPorProvincia).forEach(([prov, votosProvMap]) => {
       const escanosProv = ESCANOS_POR_PROVINCIA[prov] || 0;
@@ -69,8 +75,8 @@ export default function EscrutinioPage() {
   const totalVotos = Object.values(votosMap).reduce((sum, v) => sum + v, 0);
   const totalMesas = 2213;
   const actasEscrutadas = estadisticas.actas_escrutadas;
-  const censoKey = provinciaSeleccionada === 'ARAGON' ? 'ARAGON' : provinciaSeleccionada;
-  const censoTotal = CENSO_TOTAL[censoKey] || CENSO_TOTAL.ARAGON;
+  const censoKey = provinciaSeleccionada === 'CYL' ? 'CYL' : provinciaSeleccionada;
+  const censoTotal = CENSO_TOTAL[censoKey] || CENSO_TOTAL.CYL;
   const censoEscrutado = estadisticas.total_censo || 0;
   const porcentajeEscrutado = censoTotal > 0 ? (censoEscrutado / censoTotal) * 100 : 0;
   const participacion = estadisticas.participacion;
@@ -113,7 +119,7 @@ export default function EscrutinioPage() {
             Escrutinio en Tiempo Real
           </h1>
           <p className="text-slate-400">
-            Cortes de Aragón 2026 - Resultados provisionales
+            Cortes de Castilla y León 2026 - Resultados provisionales
           </p>
         </div>
 
@@ -148,7 +154,7 @@ export default function EscrutinioPage() {
                   );
                 })}
                 <text x={250} y={242} textAnchor="middle" fill="#64748b" fontSize="12" fontWeight="600">Mayoría</text>
-                <text x={250} y={258} textAnchor="middle" fill="#64748b" fontSize="11">34 escaños</text>
+                <text x={250} y={258} textAnchor="middle" fill="#64748b" fontSize="11">42 escaños</text>
               </svg>
             </div>
             <div className="p-10 bg-slate-900/50 border border-cyan-500/30 rounded-xl text-center">

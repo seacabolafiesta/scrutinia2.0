@@ -38,7 +38,7 @@ function GrayHemiciclo() {
         <h3 className="text-xl font-bold text-white">Composición del Hemiciclo</h3>
         <div className="text-right">
           <span className="text-xs text-slate-500 uppercase tracking-wider">Mayoría absoluta</span>
-          <p className="text-lg font-bold text-cyan-400">34</p>
+          <p className="text-lg font-bold text-cyan-400">42</p>
         </div>
       </div>
       <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-xl mx-auto opacity-30">
@@ -59,7 +59,7 @@ function GrayHemiciclo() {
           Mayoría
         </text>
         <text x={cx} y={cy - 2} textAnchor="middle" fill="#64748b" fontSize="11">
-          34 escaños
+          42 escaños
         </text>
       </svg>
       <p className="text-center text-slate-500 text-sm mt-4 animate-pulse">
@@ -77,7 +77,7 @@ export default function HemicicloPreview() {
     votosMap[r.candidatura] = r.votos_totales || 0;
   });
 
-  const totalEscaños = 67;
+  const totalEscaños = 82;
   // D'Hondt per province then sum (circunscripción = provincia)
   let seats: SeatsResult;
   if (Object.keys(resultadosPorProvincia).length > 0) {
@@ -104,7 +104,7 @@ export default function HemicicloPreview() {
   }
 
   // ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
-  const SHOW_AUDIT_MODE = false;
+  const SHOW_AUDIT_MODE = true;
 
   return (
     <div>
@@ -115,15 +115,7 @@ export default function HemicicloPreview() {
       ) : (
         <GrayHemiciclo />
       )}
-      <div className="text-center mt-6">
-        <Link
-          href="/escrutinio"
-          className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/20 text-lg group"
-        >
-          Ver resultados completos
-          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-        </Link>
-      </div>
+      {/* Button hidden while audit mode is active */}
     </div>
   );
 }

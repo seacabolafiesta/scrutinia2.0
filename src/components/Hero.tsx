@@ -20,7 +20,7 @@ export default function Hero() {
           <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 leading-tight text-white">
             ESCRUTINIO CIUDADANO
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 block mt-1 text-2xl md:text-4xl">
-              CORTES DE ARAGÓN 2026
+              CORTES DE CASTILLA Y LEÓN 2026
             </span>
           </h1>
           <p className="text-slate-400 mb-8 max-w-2xl mx-auto text-sm md:text-base">

@@ -22,7 +22,7 @@ const defaultStats: EstadisticasEscrutinio = {
   ultima_actualizacion: null,
 };
 
-// Per-province vote breakdown (used for correct D'Hondt when viewing ARAGON)
+// Per-province vote breakdown (used for correct D'Hondt when viewing CYL)
 export interface VotosPorProvincia {
   [provincia: string]: { [candidatura: string]: number };
 }
@@ -38,7 +38,7 @@ export function useRealtimeScrutiny(provincia?: string) {
   const fetchData = useCallback(async () => {
     const provinciaUpper = provincia?.toUpperCase();
 
-    const filterProvincia = provinciaUpper || 'ARAGON';
+    const filterProvincia = provinciaUpper || 'CYL';
 
     // Run queries in PARALLEL
     const resultadosQuery = supabase
@@ -53,12 +53,12 @@ export function useRealtimeScrutiny(provincia?: string) {
       .eq('provincia', filterProvincia)
       .maybeSingle();
 
-    // When viewing ARAGON, also fetch per-province breakdown for correct D'Hondt
+    // When viewing CYL, also fetch per-province breakdown for correct D'Hondt
     const perProvQuery = !provinciaUpper
       ? supabase
           .from('resultados_escrutinio')
           .select('provincia, candidatura, votos_totales')
-          .in('provincia', ['ZARAGOZA', 'HUESCA', 'TERUEL'])
+          .in('provincia', ['VALLADOLID', 'LEON', 'BURGOS', 'SALAMANCA', 'AVILA', 'PALENCIA', 'SEGOVIA', 'ZAMORA', 'SORIA'])
       : null;
 
     const [resultadosRes, statsRes, perProvRes] = await Promise.all([
