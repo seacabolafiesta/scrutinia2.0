@@ -3,47 +3,83 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileText } from 'lucide-react';
 import HeaderEstado from '@/components/escrutinio/HeaderEstado';
 import Hemiciclo from '@/components/escrutinio/Hemiciclo';
 import TablaResultados from '@/components/escrutinio/TablaResultados';
 import Pactometro from '@/components/escrutinio/Pactometro';
 import SelectorGeografico from '@/components/escrutinio/SelectorGeografico';
 import { useRealtimeScrutiny } from '@/hooks/useRealtimeScrutiny';
-import { calculateDHondt, calculatePercentages } from '@/lib/dhondt';
-import { getEscañosProvincia, type Provincia } from '@/lib/elections-config';
+import { calculateDHondt, calculatePercentages, type SeatsResult } from '@/lib/dhondt';
+import { getEscañosProvincia, ESCANOS_POR_PROVINCIA, type Provincia } from '@/lib/elections-config';
+
+// ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
+const SHOW_AUDIT_MODE = true;
+
+const CENSO_TOTAL: Record<string, number> = {
+  CYL: 2097768,
+  VALLADOLID: 414548,
+  LEON: 356842,
+  BURGOS: 274326,
+  SALAMANCA: 258946,
+  AVILA: 122126,
+  PALENCIA: 121987,
+  SEGOVIA: 122459,
+  ZAMORA: 126963,
+  SORIA: 68635,
+};
 
 export default function EscrutinioPage() {
-  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'ARAGON'>('ARAGON');
+  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'CYL'>('CYL');
   const [ultimaActualizacion, setUltimaActualizacion] = useState<Date>(new Date());
 
-  const { resultados, isLoading } = useRealtimeScrutiny(
-    provinciaSeleccionada !== 'ARAGON' ? provinciaSeleccionada : undefined
+  const { resultados, resultadosPorProvincia, estadisticas, isLoading } = useRealtimeScrutiny(
+    provinciaSeleccionada !== 'CYL' ? provinciaSeleccionada : undefined
   );
 
   useEffect(() => {
-    if (resultados.length > 0) {
+    if (estadisticas.ultima_actualizacion) {
+      setUltimaActualizacion(new Date(estadisticas.ultima_actualizacion));
+    } else if (resultados.length > 0) {
       setUltimaActualizacion(new Date());
     }
-  }, [resultados]);
+  }, [resultados, estadisticas.ultima_actualizacion]);
 
   const votosMap: { [partido: string]: number } = {};
   resultados.forEach((r) => {
     votosMap[r.candidatura] = r.votos_totales || 0;
   });
 
-  const totalEscaños = provinciaSeleccionada !== 'ARAGON' 
+  const totalEscaños = provinciaSeleccionada !== 'CYL' 
     ? getEscañosProvincia(provinciaSeleccionada)
-    : 67;
+    : 82;
 
-  const { seats } = calculateDHondt(votosMap, totalEscaños, 0.03);
+  // When CYL: D'Hondt per province then sum (circunscripción = provincia)
+  // When province: D'Hondt on that province directly
+  let seats: SeatsResult;
+  if (provinciaSeleccionada === 'CYL' && Object.keys(resultadosPorProvincia).length > 0) {
+    seats = {};
+    Object.entries(resultadosPorProvincia).forEach(([prov, votosProvMap]) => {
+      const escanosProv = ESCANOS_POR_PROVINCIA[prov] || 0;
+      if (escanosProv === 0) return;
+      const { seats: provSeats } = calculateDHondt(votosProvMap, escanosProv, 0.03);
+      Object.entries(provSeats).forEach(([partido, n]) => {
+        seats[partido] = (seats[partido] || 0) + n;
+      });
+    });
+  } else {
+    ({ seats } = calculateDHondt(votosMap, totalEscaños, 0.03));
+  }
   const porcentajes = calculatePercentages(votosMap);
 
   const totalVotos = Object.values(votosMap).reduce((sum, v) => sum + v, 0);
-  const actasEscrutadas = resultados.length > 0 ? 1 : 0;
-  const totalMesas = 1487;
-  const porcentajeEscrutado = (actasEscrutadas / totalMesas) * 100;
-  const participacion = 0;
+  const totalMesas = 2213;
+  const actasEscrutadas = estadisticas.actas_escrutadas;
+  const censoKey = provinciaSeleccionada === 'CYL' ? 'CYL' : provinciaSeleccionada;
+  const censoTotal = CENSO_TOTAL[censoKey] || CENSO_TOTAL.CYL;
+  const censoEscrutado = estadisticas.total_censo || 0;
+  const porcentajeEscrutado = censoTotal > 0 ? (censoEscrutado / censoTotal) * 100 : 0;
+  const participacion = estadisticas.participacion;
 
   const mayoriaAbsoluta = Math.floor(totalEscaños / 2) + 1;
 
@@ -83,44 +119,107 @@ export default function EscrutinioPage() {
             Escrutinio en Tiempo Real
           </h1>
           <p className="text-slate-400">
-            Cortes de Aragón 2026 - Resultados provisionales
+            Cortes de Castilla y León 2026 - Resultados provisionales
           </p>
         </div>
 
-        <SelectorGeografico
-          provinciaSeleccionada={provinciaSeleccionada}
-          onProvinciaChange={setProvinciaSeleccionada}
-        />
+        {SHOW_AUDIT_MODE ? (
+          <>
+            <div className="mb-8 bg-slate-900/50 border border-slate-800 rounded-xl p-6 md:p-8">
+              <h3 className="text-xl font-bold text-white mb-2 text-center">Composición del Hemiciclo</h3>
+              <svg viewBox="0 0 500 280" className="w-full max-w-xl mx-auto opacity-30">
+                {[0, 1, 2, 3].map((row) => {
+                  const outerR = 230;
+                  const innerR = 100;
+                  const rowThick = (outerR - innerR - 3 * 3) / 4;
+                  const rOut = outerR - row * (rowThick + 3);
+                  const rIn = rOut - rowThick;
+                  const cx = 250, cy = 260;
+                  const x1 = cx + rOut * Math.cos(Math.PI);
+                  const y1 = cy - rOut * Math.sin(Math.PI);
+                  const x2 = cx + rOut * Math.cos(0);
+                  const y2 = cy - rOut * Math.sin(0);
+                  const x3 = cx + rIn * Math.cos(0);
+                  const y3 = cy - rIn * Math.sin(0);
+                  const x4 = cx + rIn * Math.cos(Math.PI);
+                  const y4 = cy - rIn * Math.sin(Math.PI);
+                  return (
+                    <path
+                      key={`gray-r${row}`}
+                      d={`M${x1},${y1} A${rOut},${rOut} 0 0 1 ${x2},${y2} L${x3},${y3} A${rIn},${rIn} 0 0 0 ${x4},${y4}Z`}
+                      fill="#334155"
+                      stroke="rgba(15,23,42,0.6)"
+                      strokeWidth="1"
+                    />
+                  );
+                })}
+                <text x={250} y={242} textAnchor="middle" fill="#64748b" fontSize="12" fontWeight="600">Mayoría</text>
+                <text x={250} y={258} textAnchor="middle" fill="#64748b" fontSize="11">42 escaños</text>
+              </svg>
+            </div>
+            <div className="p-10 bg-slate-900/50 border border-cyan-500/30 rounded-xl text-center">
+              <p className="text-2xl md:text-3xl font-bold text-white mb-3">
+                SCRUTINIA 2.0 está auditando las actas
+              </p>
+              <p className="text-slate-400 text-lg">
+                Pronto verás los resultados
+              </p>
+              <div className="mt-6 flex justify-center">
+                <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <SelectorGeografico
+              provinciaSeleccionada={provinciaSeleccionada}
+              onProvinciaChange={setProvinciaSeleccionada}
+            />
 
-        <HeaderEstado
-          porcentajeEscrutado={porcentajeEscrutado}
-          participacion={participacion}
-          actasEscrutadas={actasEscrutadas}
-          totalMesas={totalMesas}
-          ultimaActualizacion={ultimaActualizacion}
-        />
+            <HeaderEstado
+              porcentajeEscrutado={porcentajeEscrutado}
+              participacion={participacion}
+              actasEscrutadas={actasEscrutadas}
+              totalMesas={totalMesas}
+              censoEscrutado={censoEscrutado}
+              censoTotal={censoTotal}
+              ultimaActualizacion={ultimaActualizacion}
+            />
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          <Hemiciclo escaños={seats} totalEscaños={totalEscaños} />
-          <Pactometro escaños={seats} mayoriaAbsoluta={mayoriaAbsoluta} />
-        </div>
+            <div className="grid lg:grid-cols-2 gap-8 mb-8">
+              <Hemiciclo escaños={seats} totalEscaños={totalEscaños} />
+              <Pactometro escaños={seats} mayoriaAbsoluta={mayoriaAbsoluta} />
+            </div>
 
-        <TablaResultados
-          votos={votosMap}
-          porcentajes={porcentajes}
-          escaños={seats}
-          showEscaños={provinciaSeleccionada !== 'ARAGON'}
-        />
+            <TablaResultados
+              votos={votosMap}
+              porcentajes={porcentajes}
+              escaños={seats}
+              showEscaños={true}
+            />
 
-        {totalVotos === 0 && (
-          <div className="mt-8 p-8 bg-slate-900/50 border border-slate-800 rounded-xl text-center">
-            <p className="text-slate-400 text-lg">
-              📊 Esperando datos del escrutinio...
-            </p>
-            <p className="text-slate-500 text-sm mt-2">
-              Los resultados aparecerán automáticamente cuando se procesen las primeras actas.
-            </p>
-          </div>
+            <Link
+              href="/escrutinio/actas"
+              className="mt-8 flex items-center justify-center gap-3 p-6 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-cyan-500/50 transition-colors group"
+            >
+              <FileText className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <div>
+                <p className="text-white font-bold">Repositorio de Actas</p>
+                <p className="text-slate-400 text-sm">Consulta votos por mesa y descarga las actas escaneadas</p>
+              </div>
+            </Link>
+
+            {totalVotos === 0 && (
+              <div className="mt-8 p-8 bg-slate-900/50 border border-slate-800 rounded-xl text-center">
+                <p className="text-slate-400 text-lg">
+                  Esperando datos del escrutinio...
+                </p>
+                <p className="text-slate-500 text-sm mt-2">
+                  Los resultados aparecerán automáticamente cuando se procesen las primeras actas.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

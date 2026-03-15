@@ -74,7 +74,7 @@ export function calculateResultadosProvincia(
 }
 
 export interface ResultadoGlobal {
-  aragon: {
+  comunidad: {
     escañosTotales: SeatsResult;
     votosTotales: VotesMap;
   };
@@ -106,7 +106,7 @@ export function calculateResultadosGlobales(
   });
 
   return {
-    aragon: {
+    comunidad: {
       escañosTotales,
       votosTotales,
     },

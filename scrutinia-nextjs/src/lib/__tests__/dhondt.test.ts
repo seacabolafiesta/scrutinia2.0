@@ -44,7 +44,7 @@ describe('D\'Hondt Algorithm', () => {
     expect(percentages['VOX']).toBe(20);
   });
 
-  test('Caso Aragón 2026 - Zaragoza (35 escaños)', () => {
+  test('Caso ejemplo - 35 escaños', () => {
     const votes = {
       'PSOE': 180000,
       'PP': 160000,

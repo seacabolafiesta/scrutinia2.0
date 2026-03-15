@@ -1,69 +1,141 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Database } from '@/lib/supabase/database.types';
 
 type ResultadoPublico = Database['public']['Tables']['resultados_publicos']['Row'];
 
+interface EstadisticasEscrutinio {
+  actas_escrutadas: number;
+  total_votantes: number;
+  total_censo: number;
+  participacion: number;
+  ultima_actualizacion: string | null;
+}
+
+const defaultStats: EstadisticasEscrutinio = {
+  actas_escrutadas: 0,
+  total_votantes: 0,
+  total_censo: 0,
+  participacion: 0,
+  ultima_actualizacion: null,
+};
+
+// Per-province vote breakdown (used for correct D'Hondt when viewing CYL)
+export interface VotosPorProvincia {
+  [provincia: string]: { [candidatura: string]: number };
+}
+
 export function useRealtimeScrutiny(provincia?: string) {
   const [resultados, setResultados] = useState<ResultadoPublico[]>([]);
+  const [resultadosPorProvincia, setResultadosPorProvincia] = useState<VotosPorProvincia>({});
+  const [estadisticas, setEstadisticas] = useState<EstadisticasEscrutinio>(defaultStats);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+  const fetchData = useCallback(async () => {
+    const provinciaUpper = provincia?.toUpperCase();
+
+    const filterProvincia = provinciaUpper || 'CYL';
+
+    // Run queries in PARALLEL
+    const resultadosQuery = supabase
+      .from('resultados_escrutinio')
+      .select('*')
+      .eq('provincia', filterProvincia)
+      .order('votos_totales', { ascending: false });
+
+    const statsQuery = supabase
+      .from('estadisticas_escrutinio')
+      .select('*')
+      .eq('provincia', filterProvincia)
+      .maybeSingle();
+
+    // When viewing CYL, also fetch per-province breakdown for correct D'Hondt
+    const perProvQuery = !provinciaUpper
+      ? supabase
+          .from('resultados_escrutinio')
+          .select('provincia, candidatura, votos_totales')
+          .in('provincia', ['VALLADOLID', 'LEON', 'BURGOS', 'SALAMANCA', 'AVILA', 'PALENCIA', 'SEGOVIA', 'ZAMORA', 'SORIA'])
+      : null;
+
+    const [resultadosRes, statsRes, perProvRes] = await Promise.all([
+      resultadosQuery,
+      statsQuery,
+      perProvQuery,
+    ]);
+
+    if (resultadosRes.error) {
+      console.error('Error fetching resultados:', resultadosRes.error);
+    } else {
+      setResultados(resultadosRes.data || []);
+    }
+
+    // Build per-province vote map
+    if (perProvRes?.data) {
+      const byProv: VotosPorProvincia = {};
+      perProvRes.data.forEach((r: any) => {
+        if (!byProv[r.provincia]) byProv[r.provincia] = {};
+        byProv[r.provincia][r.candidatura] = r.votos_totales || 0;
+      });
+      setResultadosPorProvincia(byProv);
+    } else if (provinciaUpper) {
+      setResultadosPorProvincia({});
+    }
+
+    if (statsRes.data) {
+      setEstadisticas({
+        actas_escrutadas: statsRes.data.actas_escrutadas || 0,
+        total_votantes: statsRes.data.total_votantes || 0,
+        total_censo: statsRes.data.total_censo || 0,
+        participacion: parseFloat(statsRes.data.participacion) || 0,
+        ultima_actualizacion: statsRes.data.ultima_actualizacion,
+      });
+    } else {
+      setEstadisticas(defaultStats);
+    }
+  }, [supabase, provincia]);
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      let query = supabase
-        .from('resultados_publicos')
-        .select('*')
-        .order('votos_totales', { ascending: false });
+    let mounted = true;
 
-      if (provincia) {
-        query = query.eq('provincia', provincia);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error fetching resultados:', error);
-      } else {
-        setResultados(data || []);
-      }
-      setIsLoading(false);
+    const init = async () => {
+      setIsLoading(true);
+      await fetchData();
+      if (mounted) setIsLoading(false);
     };
 
-    fetchInitialData();
+    init();
 
+    // Clean up previous channel
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
+    const channelName = `scrutinia-${provincia || 'all'}-${Date.now()}`;
     const channel = supabase
-      .channel('resultados-changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'resultados_publicos',
-          filter: provincia ? `provincia=eq.${provincia}` : undefined
-        },
-        (payload) => {
-          console.log('Realtime update:', payload);
-          
-          if (payload.eventType === 'INSERT') {
-            setResultados((prev) => [...prev, payload.new as ResultadoPublico]);
-          } else if (payload.eventType === 'UPDATE') {
-            setResultados((prev) =>
-              prev.map((r) => (r.id === payload.new.id ? payload.new as ResultadoPublico : r))
-            );
-          } else if (payload.eventType === 'DELETE') {
-            setResultados((prev) => prev.filter((r) => r.id !== payload.old.id));
-          }
-        }
+        { event: '*', schema: 'public', table: 'scrutinia_actas_votos' },
+        () => fetchData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'scrutinia_actas_2' },
+        () => fetchData()
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
+      mounted = false;
       supabase.removeChannel(channel);
     };
-  }, [provincia, supabase]);
+  }, [provincia, fetchData, supabase]);
 
-  return { resultados, isLoading };
+  return { resultados, resultadosPorProvincia, estadisticas, isLoading };
 }
