@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { ESCANOS_POR_PROVINCIA } from '@/lib/elections-config';
 import type { Database } from '@/lib/supabase/database.types';
 
 type ResultadoPublico = Database['public']['Tables']['resultados_publicos']['Row'];
@@ -58,7 +59,7 @@ export function useRealtimeScrutiny(provincia?: string) {
       ? supabase
           .from('resultados_escrutinio')
           .select('provincia, candidatura, votos_totales')
-          .in('provincia', ['VALLADOLID', 'LEON', 'BURGOS', 'SALAMANCA', 'AVILA', 'PALENCIA', 'SEGOVIA', 'ZAMORA', 'SORIA'])
+          .in('provincia', Object.keys(ESCANOS_POR_PROVINCIA))
       : null;
 
     const [resultadosRes, statsRes, perProvRes] = await Promise.all([

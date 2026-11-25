@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useRealtimeScrutiny } from '@/hooks/useRealtimeScrutiny';
 import { calculateDHondt, type SeatsResult } from '@/lib/dhondt';
-import { ESCANOS_POR_PROVINCIA } from '@/lib/elections-config';
+import { ESCANOS_POR_PROVINCIA, GENERALES_2026_CONFIG, MAYORIA_ABSOLUTA } from '@/lib/elections-config';
 import { getPartidoHexColor, getPartidoDisplayName } from '@/lib/partido-colors';
 import Hemiciclo from '@/components/escrutinio/Hemiciclo';
 
@@ -38,7 +38,7 @@ function GrayHemiciclo() {
         <h3 className="text-xl font-bold text-white">Composición del Hemiciclo</h3>
         <div className="text-right">
           <span className="text-xs text-slate-500 uppercase tracking-wider">Mayoría absoluta</span>
-          <p className="text-lg font-bold text-cyan-400">42</p>
+          <p className="text-lg font-bold text-cyan-400">{MAYORIA_ABSOLUTA}</p>
         </div>
       </div>
       <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full max-w-xl mx-auto opacity-30">
@@ -59,7 +59,7 @@ function GrayHemiciclo() {
           Mayoría
         </text>
         <text x={cx} y={cy - 2} textAnchor="middle" fill="#64748b" fontSize="11">
-          42 escaños
+          {MAYORIA_ABSOLUTA} escaños
         </text>
       </svg>
       <p className="text-center text-slate-500 text-sm mt-4 animate-pulse">
@@ -77,7 +77,7 @@ export default function HemicicloPreview() {
     votosMap[r.candidatura] = r.votos_totales || 0;
   });
 
-  const totalEscaños = 82;
+  const totalEscaños = GENERALES_2026_CONFIG.totalEscaños;
   // D'Hondt per province then sum (circunscripción = provincia)
   let seats: SeatsResult;
   if (Object.keys(resultadosPorProvincia).length > 0) {

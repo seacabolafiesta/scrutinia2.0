@@ -11,23 +11,18 @@ import Pactometro from '@/components/escrutinio/Pactometro';
 import SelectorGeografico from '@/components/escrutinio/SelectorGeografico';
 import { useRealtimeScrutiny } from '@/hooks/useRealtimeScrutiny';
 import { calculateDHondt, calculatePercentages, type SeatsResult } from '@/lib/dhondt';
-import { getEscañosProvincia, ESCANOS_POR_PROVINCIA, type Provincia } from '@/lib/elections-config';
+import {
+  getEscañosProvincia,
+  ESCANOS_POR_PROVINCIA,
+  GENERALES_2026_CONFIG,
+  CENSO_NACIONAL,
+  MAYORIA_ABSOLUTA,
+  TOTAL_MESAS,
+  type Provincia,
+} from '@/lib/elections-config';
 
 // ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
 const SHOW_AUDIT_MODE = true;
-
-const CENSO_TOTAL: Record<string, number> = {
-  CYL: 2097768,
-  VALLADOLID: 414548,
-  LEON: 356842,
-  BURGOS: 274326,
-  SALAMANCA: 258946,
-  AVILA: 122126,
-  PALENCIA: 121987,
-  SEGOVIA: 122459,
-  ZAMORA: 126963,
-  SORIA: 68635,
-};
 
 export default function EscrutinioPage() {
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'CYL'>('CYL');
@@ -52,7 +47,7 @@ export default function EscrutinioPage() {
 
   const totalEscaños = provinciaSeleccionada !== 'CYL' 
     ? getEscañosProvincia(provinciaSeleccionada)
-    : 82;
+    : GENERALES_2026_CONFIG.totalEscaños;
 
   // When CYL: D'Hondt per province then sum (circunscripción = provincia)
   // When province: D'Hondt on that province directly
@@ -73,10 +68,11 @@ export default function EscrutinioPage() {
   const porcentajes = calculatePercentages(votosMap);
 
   const totalVotos = Object.values(votosMap).reduce((sum, v) => sum + v, 0);
-  const totalMesas = 2213;
+  const totalMesas = TOTAL_MESAS;
   const actasEscrutadas = estadisticas.actas_escrutadas;
-  const censoKey = provinciaSeleccionada === 'CYL' ? 'CYL' : provinciaSeleccionada;
-  const censoTotal = CENSO_TOTAL[censoKey] || CENSO_TOTAL.CYL;
+  const censoTotal = provinciaSeleccionada === 'CYL'
+    ? CENSO_NACIONAL
+    : GENERALES_2026_CONFIG.provincias[provinciaSeleccionada].censo;
   const censoEscrutado = estadisticas.total_censo || 0;
   const porcentajeEscrutado = censoTotal > 0 ? (censoEscrutado / censoTotal) * 100 : 0;
   const participacion = estadisticas.participacion;
@@ -154,7 +150,7 @@ export default function EscrutinioPage() {
                   );
                 })}
                 <text x={250} y={242} textAnchor="middle" fill="#64748b" fontSize="12" fontWeight="600">Mayoría</text>
-                <text x={250} y={258} textAnchor="middle" fill="#64748b" fontSize="11">42 escaños</text>
+                <text x={250} y={258} textAnchor="middle" fill="#64748b" fontSize="11">{MAYORIA_ABSOLUTA} escaños</text>
               </svg>
             </div>
             <div className="p-10 bg-slate-900/50 border border-cyan-500/30 rounded-xl text-center">

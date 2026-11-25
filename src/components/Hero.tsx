@@ -26,13 +26,13 @@ export default function Hero() {
           <p className="text-slate-400 mb-8 max-w-2xl mx-auto text-sm md:text-base">
             IA contra el fraude electoral. <strong className="text-white">Asesoramiento legal 24h</strong> y <strong className="text-white">escrutinio ciudadano</strong> verificado.
           </p>
-          <p className="text-white font-bold text-lg mb-3">Envía tu acta electoral</p>
+          <p className="text-white font-bold text-lg mb-3">Consulta al Asesor Electoral IA</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-            <a href="https://wa.me/34711209894" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 bg-[#25D366] hover:bg-[#1ebe57] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
+            <a href="https://wa.me/34711240342" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 bg-[#25D366] hover:bg-[#1ebe57] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20">
               <MessageCircle className="w-5 h-5" />
               WhatsApp
             </a>
-            <a href="https://t.me/scrutinia2_bot" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
+            <a href="https://t.me/agente_scrutinia_bot" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
               <Send className="w-5 h-5" />
               Telegram
             </a>
