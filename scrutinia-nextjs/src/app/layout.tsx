@@ -1,16 +1,17 @@
+// Scrutinia v2.0 - Control Electoral Ciudadano
 import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Scrutinia | Elecciones generales 29N · Cada acta cuenta",
-  description: "Elecciones generales 29N: participa en la verificación ciudadana del escrutinio. Envía tu acta, aprende sobre el proceso electoral y consulta al asesor IA de Scrutinia.",
+  title: "SCRUTINIA - Control Electoral Ciudadano - Elecciones Generales 29N",
+  description: "Scrutinia: Inteligencia Artificial contra el fraude electoral. Asesor legal 24h y escrutinio ciudadano en tiempo real para las Elecciones Generales del 29N.",
   icons: {
     icon: "/faviconscrutinia.png",
     apple: "/faviconscrutinia.png",
   },
   openGraph: {
-    title: "Scrutinia | Elecciones generales 29N",
-    description: "Cada acta cuenta. Participa en la verificación ciudadana del escrutinio del 29N.",
+    title: "SCRUTINIA - Control Electoral Ciudadano",
+    description: "Inteligencia Artificial contra el fraude electoral. Asesor legal 24h y escrutinio ciudadano en tiempo real para las Elecciones Generales del 29N.",
     images: [{ url: "/logoscrutinia.png", width: 512, height: 512, alt: "Scrutinia Logo" }],
     type: "website",
     locale: "es_ES",
@@ -18,8 +19,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Scrutinia | Elecciones generales 29N",
-    description: "Cada acta cuenta. Verificación ciudadana del escrutinio del 29N.",
+    title: "SCRUTINIA - Control Electoral Ciudadano",
+    description: "IA contra el fraude electoral. Asesor legal 24h y escrutinio ciudadano en tiempo real.",
     images: ["/logoscrutinia.png"],
   },
 };

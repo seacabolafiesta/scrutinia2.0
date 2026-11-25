@@ -28,14 +28,14 @@ export default function SelectorGeografico({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-400 mb-2">
-            Provincia / Castilla y León
+            Provincia / España
           </label>
           <select
             value={provinciaSeleccionada}
             onChange={(e) => onProvinciaChange(e.target.value as Provincia | 'CYL')}
             className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
-            <option value="CYL">Castilla y León (Global)</option>
+            <option value="CYL">España (Global)</option>
             {PROVINCIAS.map((prov) => (
               <option key={prov} value={prov}>
                 {prov}

@@ -25,15 +25,15 @@ export default function ActasPage() {
   const [showVisor, setShowVisor] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#101f2d]">
+    <div className="min-h-screen bg-slate-950">
       {/* Header */}
-      <header className="border-b border-white/15 bg-[#101f2d]/95 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <Image src="/logoscrutinia.png" alt="Logo" width={40} height={40} />
-              <span className="font-display font-bold text-2xl tracking-wide text-white">
-                SCRUTINIA<span className="text-[#ed513c]">.</span> <span className="text-[#a7b3b9] font-medium">/ ARCHIVO</span>
+              <span className="font-bold text-xl tracking-tighter text-white">
+                SCRUTINIA <span className="text-cyan-400 font-light">ACTAS</span>
               </span>
             </Link>
             <Link href="/escrutinio" className="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
@@ -47,15 +47,12 @@ export default function ActasPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Title */}
         <div className="mb-8">
-          <h1 className="font-display text-5xl md:text-6xl font-black uppercase text-white mb-2">
-            Archivo de actas
+          <h1 className="text-3xl md:text-4xl font-black text-white mb-2">
+            Repositorio de Actas
           </h1>
           <p className="text-slate-400">
-            Consulta los votos por mesa electoral y visualiza las actas escaneadas de convocatorias anteriores.
+            Consulta los votos por mesa electoral y visualiza las actas escaneadas.
           </p>
-        </div>
-        <div className="mb-8 border-l-4 border-[#ed513c] bg-[#f5f1e9] p-5 text-[#142637] text-sm leading-relaxed">
-          Este archivo contiene actas históricas. No corresponde a las elecciones generales del 29N.
         </div>
 
         {/* Filtros */}

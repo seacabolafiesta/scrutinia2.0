@@ -2,13 +2,13 @@ import Link from 'next/link';
 
 export default function PoliticaPrivacidadPage() {
   return (
-    <div className="min-h-screen bg-[#101f2d] text-[#c6ced0]">
+    <div className="min-h-screen bg-slate-950 text-slate-300 font-sans">
       <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
-        <Link href="/" className="inline-flex items-center text-[#ff8b78] hover:text-white mb-8 transition-colors">
+        <Link href="/" className="inline-flex items-center text-cyan-400 hover:text-cyan-300 mb-8 transition-colors">
           ← Volver al inicio
         </Link>
         
-        <h1 className="font-display uppercase text-5xl md:text-6xl font-black text-[#f5f1e9] mb-8 border-b border-white/20 pb-4">
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-8 border-b border-slate-800 pb-4">
           Política de Privacidad
         </h1>
 
