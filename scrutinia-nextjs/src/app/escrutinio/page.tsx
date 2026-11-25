@@ -1,226 +1,34 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeft, FileText } from 'lucide-react';
-import HeaderEstado from '@/components/escrutinio/HeaderEstado';
-import Hemiciclo from '@/components/escrutinio/Hemiciclo';
-import TablaResultados from '@/components/escrutinio/TablaResultados';
-import Pactometro from '@/components/escrutinio/Pactometro';
-import SelectorGeografico from '@/components/escrutinio/SelectorGeografico';
-import { useRealtimeScrutiny } from '@/hooks/useRealtimeScrutiny';
-import { calculateDHondt, calculatePercentages, type SeatsResult } from '@/lib/dhondt';
-import { getEscañosProvincia, ESCANOS_POR_PROVINCIA, type Provincia } from '@/lib/elections-config';
-
-// ⚠️ TOGGLE: cambiar a false para mostrar resultados completos
-const SHOW_AUDIT_MODE = true;
-
-const CENSO_TOTAL: Record<string, number> = {
-  CYL: 2097768,
-  VALLADOLID: 414548,
-  LEON: 356842,
-  BURGOS: 274326,
-  SALAMANCA: 258946,
-  AVILA: 122126,
-  PALENCIA: 121987,
-  SEGOVIA: 122459,
-  ZAMORA: 126963,
-  SORIA: 68635,
-};
+import { ArrowLeft, ArrowUpRight, CalendarDays, FileCheck2 } from 'lucide-react';
 
 export default function EscrutinioPage() {
-  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<Provincia | 'CYL'>('CYL');
-  const [ultimaActualizacion, setUltimaActualizacion] = useState<Date>(new Date());
-
-  const { resultados, resultadosPorProvincia, estadisticas, isLoading } = useRealtimeScrutiny(
-    provinciaSeleccionada !== 'CYL' ? provinciaSeleccionada : undefined
-  );
-
-  useEffect(() => {
-    if (estadisticas.ultima_actualizacion) {
-      setUltimaActualizacion(new Date(estadisticas.ultima_actualizacion));
-    } else if (resultados.length > 0) {
-      setUltimaActualizacion(new Date());
-    }
-  }, [resultados, estadisticas.ultima_actualizacion]);
-
-  const votosMap: { [partido: string]: number } = {};
-  resultados.forEach((r) => {
-    votosMap[r.candidatura] = r.votos_totales || 0;
-  });
-
-  const totalEscaños = provinciaSeleccionada !== 'CYL' 
-    ? getEscañosProvincia(provinciaSeleccionada)
-    : 82;
-
-  // When CYL: D'Hondt per province then sum (circunscripción = provincia)
-  // When province: D'Hondt on that province directly
-  let seats: SeatsResult;
-  if (provinciaSeleccionada === 'CYL' && Object.keys(resultadosPorProvincia).length > 0) {
-    seats = {};
-    Object.entries(resultadosPorProvincia).forEach(([prov, votosProvMap]) => {
-      const escanosProv = ESCANOS_POR_PROVINCIA[prov] || 0;
-      if (escanosProv === 0) return;
-      const { seats: provSeats } = calculateDHondt(votosProvMap, escanosProv, 0.03);
-      Object.entries(provSeats).forEach(([partido, n]) => {
-        seats[partido] = (seats[partido] || 0) + n;
-      });
-    });
-  } else {
-    ({ seats } = calculateDHondt(votosMap, totalEscaños, 0.03));
-  }
-  const porcentajes = calculatePercentages(votosMap);
-
-  const totalVotos = Object.values(votosMap).reduce((sum, v) => sum + v, 0);
-  const totalMesas = 2213;
-  const actasEscrutadas = estadisticas.actas_escrutadas;
-  const censoKey = provinciaSeleccionada === 'CYL' ? 'CYL' : provinciaSeleccionada;
-  const censoTotal = CENSO_TOTAL[censoKey] || CENSO_TOTAL.CYL;
-  const censoEscrutado = estadisticas.total_censo || 0;
-  const porcentajeEscrutado = censoTotal > 0 ? (censoEscrutado / censoTotal) * 100 : 0;
-  const participacion = estadisticas.participacion;
-
-  const mayoriaAbsoluta = Math.floor(totalEscaños / 2) + 1;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-400">Cargando datos del escrutinio...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-slate-950">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <Image src="/logoscrutinia.png" alt="Logo" width={40} height={40} />
-              <span className="font-bold text-xl tracking-tighter text-white">
-                SCRUTINIA <span className="text-cyan-400 font-light">ESCRUTINIO</span>
-              </span>
-            </Link>
-            <Link href="/" className="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-              Volver al inicio
-            </Link>
-          </div>
+    <div className="min-h-screen bg-[#101f2d] text-[#f5f1e9] relative overflow-hidden">
+      <div className="absolute inset-0 campaign-grid pointer-events-none" />
+      <header className="relative border-b border-white/15">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[76px] flex justify-between items-center gap-4">
+          <Link href="/" className="font-display text-2xl sm:text-3xl font-bold tracking-wide">SCRUTINIA<span className="text-[#ed513c]">.</span> <span className="text-[#a7b3b9] font-medium">/ ESCRUTINIO</span></Link>
+          <Link href="/" className="text-sm font-bold flex items-center gap-2 hover:text-[#ed513c] transition-colors"><ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Volver al inicio</span></Link>
         </div>
       </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-2">
-            Escrutinio en Tiempo Real
-          </h1>
-          <p className="text-slate-400">
-            Cortes de Castilla y León 2026 - Resultados provisionales
-          </p>
+      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-28">
+        <p className="text-[#ed513c] text-xs font-extrabold tracking-[.22em] uppercase mb-6">Elecciones generales / 29N</p>
+        <div className="grid lg:grid-cols-[1.1fr_.9fr] gap-12 lg:gap-20 items-center">
+          <div>
+            <h1 className="font-display font-black uppercase leading-[.85] text-[clamp(4.4rem,9vw,9rem)]">EL RECUENTO<br /><span className="text-[#ed513c]">EMPIEZA</span><br />CONTIGO.</h1>
+            <p className="mt-9 max-w-lg text-[#b8c3c7] leading-relaxed text-lg">Estamos preparando el espacio de verificación ciudadana para las elecciones generales del 29N. Los resultados se mostrarán cuando existan actas de esta convocatoria verificadas.</p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a href="https://wa.me/34711209894" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#ed513c] hover:bg-[#d94330] text-white px-6 py-4 font-bold transition-colors">Enviar un acta <ArrowUpRight className="w-4 h-4" /></a>
+              <Link href="/campus" className="inline-flex items-center gap-2 border border-white/30 hover:border-white px-6 py-4 font-bold transition-colors">Prepararme para el 29N</Link>
+            </div>
+            <Link href="/escrutinio/actas" className="inline-block mt-7 text-sm text-[#a7b3b9] underline underline-offset-4 hover:text-white transition-colors">Consultar archivo histórico de actas</Link>
+          </div>
+          <div className="bg-[#f5f1e9] text-[#142637] p-7 sm:p-10 shadow-[16px_16px_0_#ed513c]">
+            <div className="flex items-start justify-between gap-4 border-b border-[#142637]/20 pb-6"><span className="text-xs font-bold tracking-[.2em] uppercase">Panel de escrutinio</span><CalendarDays className="text-[#ed513c] w-6 h-6" /></div>
+            <div className="py-14 sm:py-20 text-center"><div className="font-display font-black text-[110px] sm:text-[150px] text-[#ed513c] leading-none">29N</div><p className="font-display font-bold text-3xl sm:text-4xl uppercase mt-4">En preparación</p></div>
+            <div className="flex items-start gap-4 border-t border-[#142637]/20 pt-6 text-sm text-[#53616a] leading-relaxed"><FileCheck2 className="w-5 h-5 shrink-0 text-[#ed513c]" /><p>Sin cifras provisionales de esta convocatoria. No mostramos resultados de elecciones anteriores como si fueran del 29N.</p></div>
+          </div>
         </div>
-
-        {SHOW_AUDIT_MODE ? (
-          <>
-            <div className="mb-8 bg-slate-900/50 border border-slate-800 rounded-xl p-6 md:p-8">
-              <h3 className="text-xl font-bold text-white mb-2 text-center">Composición del Hemiciclo</h3>
-              <svg viewBox="0 0 500 280" className="w-full max-w-xl mx-auto opacity-30">
-                {[0, 1, 2, 3].map((row) => {
-                  const outerR = 230;
-                  const innerR = 100;
-                  const rowThick = (outerR - innerR - 3 * 3) / 4;
-                  const rOut = outerR - row * (rowThick + 3);
-                  const rIn = rOut - rowThick;
-                  const cx = 250, cy = 260;
-                  const x1 = cx + rOut * Math.cos(Math.PI);
-                  const y1 = cy - rOut * Math.sin(Math.PI);
-                  const x2 = cx + rOut * Math.cos(0);
-                  const y2 = cy - rOut * Math.sin(0);
-                  const x3 = cx + rIn * Math.cos(0);
-                  const y3 = cy - rIn * Math.sin(0);
-                  const x4 = cx + rIn * Math.cos(Math.PI);
-                  const y4 = cy - rIn * Math.sin(Math.PI);
-                  return (
-                    <path
-                      key={`gray-r${row}`}
-                      d={`M${x1},${y1} A${rOut},${rOut} 0 0 1 ${x2},${y2} L${x3},${y3} A${rIn},${rIn} 0 0 0 ${x4},${y4}Z`}
-                      fill="#334155"
-                      stroke="rgba(15,23,42,0.6)"
-                      strokeWidth="1"
-                    />
-                  );
-                })}
-                <text x={250} y={242} textAnchor="middle" fill="#64748b" fontSize="12" fontWeight="600">Mayoría</text>
-                <text x={250} y={258} textAnchor="middle" fill="#64748b" fontSize="11">42 escaños</text>
-              </svg>
-            </div>
-            <div className="p-10 bg-slate-900/50 border border-cyan-500/30 rounded-xl text-center">
-              <p className="text-2xl md:text-3xl font-bold text-white mb-3">
-                SCRUTINIA 2.0 está auditando las actas
-              </p>
-              <p className="text-slate-400 text-lg">
-                Pronto verás los resultados
-              </p>
-              <div className="mt-6 flex justify-center">
-                <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <SelectorGeografico
-              provinciaSeleccionada={provinciaSeleccionada}
-              onProvinciaChange={setProvinciaSeleccionada}
-            />
-
-            <HeaderEstado
-              porcentajeEscrutado={porcentajeEscrutado}
-              participacion={participacion}
-              actasEscrutadas={actasEscrutadas}
-              totalMesas={totalMesas}
-              censoEscrutado={censoEscrutado}
-              censoTotal={censoTotal}
-              ultimaActualizacion={ultimaActualizacion}
-            />
-
-            <div className="grid lg:grid-cols-2 gap-8 mb-8">
-              <Hemiciclo escaños={seats} totalEscaños={totalEscaños} />
-              <Pactometro escaños={seats} mayoriaAbsoluta={mayoriaAbsoluta} />
-            </div>
-
-            <TablaResultados
-              votos={votosMap}
-              porcentajes={porcentajes}
-              escaños={seats}
-              showEscaños={true}
-            />
-
-            <Link
-              href="/escrutinio/actas"
-              className="mt-8 flex items-center justify-center gap-3 p-6 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-cyan-500/50 transition-colors group"
-            >
-              <FileText className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
-              <div>
-                <p className="text-white font-bold">Repositorio de Actas</p>
-                <p className="text-slate-400 text-sm">Consulta votos por mesa y descarga las actas escaneadas</p>
-              </div>
-            </Link>
-
-            {totalVotos === 0 && (
-              <div className="mt-8 p-8 bg-slate-900/50 border border-slate-800 rounded-xl text-center">
-                <p className="text-slate-400 text-lg">
-                  Esperando datos del escrutinio...
-                </p>
-                <p className="text-slate-500 text-sm mt-2">
-                  Los resultados aparecerán automáticamente cuando se procesen las primeras actas.
-                </p>
-              </div>
-            )}
-          </>
-        )}
       </main>
     </div>
   );

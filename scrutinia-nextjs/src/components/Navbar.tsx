@@ -1,33 +1,26 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { GraduationCap } from 'lucide-react';
+import { ArrowUpRight, GraduationCap } from 'lucide-react';
 
 export default function Navbar() {
   return (
-    <nav className="fixed w-full z-40 top-0 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+    <nav className="sticky w-full z-40 top-0 bg-[#101f2d]/95 backdrop-blur-md border-b border-white/15">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/logoscrutinia.png" alt="Logo" width={40} height={40} />
-            <span className="font-bold text-xl tracking-tighter text-white">SCRUTINIA</span>
+        <div className="flex items-center justify-between h-[76px]">
+          <Link href="/" className="flex items-center gap-3" aria-label="Scrutinia, inicio">
+            <span className="w-9 h-9 border-2 border-[#ed513c] rounded-full flex items-center justify-center text-[#ed513c] text-xl font-display font-black leading-none">S</span>
+            <span className="font-display font-bold text-[27px] tracking-wide text-[#f5f1e9] leading-none">SCRUTINIA<span className="text-[#ed513c]">.</span></span>
           </Link>
-          
-          <div className="md:hidden">
-            <Link href="/campus" className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-1">
-              <GraduationCap className="w-4 h-4" />
-              Campus
-            </Link>
-          </div>
-          
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              <a href="#asesor" className="hover:text-cyan-400 transition-colors px-3 py-2 text-sm font-medium">Asesor IA</a>
-              <Link href="/campus" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-900/20">
-                Campus Virtual
-              </Link>
-            </div>
+          <div className="flex items-center gap-5 lg:gap-8">
+            <span className="hidden lg:inline text-[11px] tracking-[.2em] font-bold text-[#a7b3b9] uppercase">Generales · 29N</span>
+            <a href="#como-funciona" className="hidden md:inline text-sm font-semibold hover:text-[#ed513c] transition-colors">Cómo funciona</a>
+            <a href="#asesor" className="hidden md:inline text-sm font-semibold hover:text-[#ed513c] transition-colors">Asesor IA</a>
+            <Link href="/escrutinio" className="hidden lg:inline text-sm font-semibold hover:text-[#ed513c] transition-colors">Escrutinio</Link>
+            <Link href="/campus" className="hidden sm:flex items-center gap-2 text-sm font-semibold hover:text-[#ed513c] transition-colors"><GraduationCap className="w-4 h-4" /> Campus</Link>
+            <a href="https://wa.me/34711209894" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#ed513c] hover:bg-[#d94330] text-white px-4 sm:px-5 py-3 text-xs sm:text-sm font-bold transition-colors">
+              Enviar acta <ArrowUpRight className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </div>

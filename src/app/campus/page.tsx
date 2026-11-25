@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import Script from 'next/script';
 import { ArrowLeft, List, X, PlayCircle } from 'lucide-react';
 import { modules, type Module } from '@/lib/modules-data';
@@ -17,171 +16,54 @@ export default function CampusPage() {
     setIsMobileDrawerOpen(false);
   };
 
-  const getVimeoUrl = (videoId: string) => {
-    return `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&playsinline=0`;
-  };
-
   const ModuleItem = ({ module }: { module: Module }) => {
     const isComingSoon = module.status === 'coming_soon';
     const isActive = currentModule.id === module.id;
-
     return (
-      <div
+      <button
+        type="button"
+        disabled={isComingSoon}
         onClick={() => handleModuleClick(module)}
-        className={`group flex items-center gap-4 p-4 cursor-pointer transition-colors hover:bg-slate-800/50 ${
-          isActive ? 'active-module' : 'text-slate-400'
-        } ${isComingSoon ? 'opacity-50 cursor-not-allowed' : ''}`}
+        aria-current={isActive ? 'true' : undefined}
+        className={`w-full text-left flex items-center gap-4 p-4 border-b border-[#142637]/10 transition-colors hover:bg-[#e9e4da] ${isActive ? 'bg-[#e9e4da] border-l-4 border-l-[#ed513c]' : 'border-l-4 border-l-transparent'} disabled:opacity-40 disabled:cursor-not-allowed`}
       >
-        <div className={`flex-none w-8 h-8 rounded-full flex items-center justify-center border text-xs font-bold ${
-          isActive 
-            ? 'border-cyan-500 text-cyan-500 bg-cyan-500/10' 
-            : 'border-slate-700 bg-slate-800 text-slate-500'
-        }`}>
-          {module.id}
-        </div>
-        <div className="flex-1">
-          <h4 className={`text-sm font-semibold ${
-            isActive ? 'text-white' : 'text-slate-300 group-hover:text-slate-200'
-          }`}>
-            {module.title}
-          </h4>
-          <span className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-            {isComingSoon ? (
-              'PRÓXIMAMENTE'
-            ) : (
-              <>
-                <PlayCircle className="w-3 h-3" />
-                {module.duration}
-              </>
-            )}
-          </span>
-        </div>
-      </div>
+        <span className={`font-display text-2xl font-bold ${isActive ? 'text-[#ed513c]' : 'text-[#7e898b]'}`}>{String(module.id + 1).padStart(2, '0')}</span>
+        <span className="flex-1 min-w-0"><span className="font-bold text-xs sm:text-sm text-[#142637] block truncate">{module.title}</span><span className="text-xs text-[#6a767a] mt-1 flex items-center gap-1">{isComingSoon ? 'PRÓXIMAMENTE' : <><PlayCircle className="w-3 h-3" /> {module.duration}</>}</span></span>
+      </button>
     );
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      {/* Header */}
-      <header className="flex-none h-16 border-b border-slate-800 bg-slate-950/50 backdrop-blur-md flex items-center px-6 justify-between z-20">
-        <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
-          <Image src="/logoscrutinia.png" alt="Scrutinia Logo" width={32} height={32} />
-          <span className="font-bold text-lg tracking-tight text-white">
-            SCRUTINIA <span className="text-cyan-400 font-light">CAMPUS</span>
-          </span>
-        </Link>
-        <Link href="/" className="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          Volver al inicio
-        </Link>
+    <div className="flex flex-col h-dvh overflow-hidden bg-[#f5f1e9] text-[#142637]">
+      <header className="flex-none h-[76px] border-b border-white/15 bg-[#101f2d] text-[#f5f1e9] flex items-center px-4 sm:px-6 justify-between z-20 gap-4">
+        <Link href="/" className="font-display text-2xl sm:text-3xl font-bold tracking-wide">SCRUTINIA<span className="text-[#ed513c]">.</span> <span className="font-medium text-[#a7b3b9]">/ CAMPUS</span></Link>
+        <Link href="/" className="text-sm font-bold flex items-center gap-2 hover:text-[#ed513c] transition-colors"><ArrowLeft className="w-4 h-4" /><span className="hidden sm:inline">Volver al inicio</span></Link>
       </header>
 
-      {/* Main Layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar (Desktop) */}
-        <aside className="w-full md:w-80 flex-none bg-slate-900/50 border-r border-slate-800 overflow-y-auto flex-col hidden md:flex">
-          <div className="p-6 border-b border-slate-800/50">
-            <h2 className="text-xs font-mono uppercase tracking-widest text-slate-500 mb-1">Contenido del curso</h2>
-            <h3 className="text-xl font-bold text-white">Formación Electoral</h3>
-          </div>
-          
-          <div className="flex flex-col py-2">
-            {modules.map((module) => (
-              <ModuleItem key={module.id} module={module} />
-            ))}
-          </div>
+      <div className="flex flex-1 min-h-0">
+        <aside className="w-80 lg:w-96 flex-none bg-[#f5f1e9] border-r border-[#142637]/20 overflow-y-auto flex-col hidden md:flex">
+          <div className="p-6 border-b border-[#142637]/20"><p className="text-[#d94330] text-[11px] font-extrabold tracking-[.2em] uppercase mb-2">29N / Formación ciudadana</p><h2 className="font-display text-4xl font-bold uppercase leading-none">Conoce el proceso.</h2></div>
+          <div className="flex flex-col">{modules.map((module) => <ModuleItem key={module.id} module={module} />)}</div>
         </aside>
 
-        {/* Content Area */}
-        <main className="flex-1 bg-black relative flex flex-col">
-          {/* Mobile Menu Toggle */}
-          <div className="md:hidden p-3 border-b border-slate-800 flex justify-between items-center bg-slate-900 flex-none">
-            <span className="font-bold text-white text-sm truncate mr-2">
-              {currentModule.title}
-            </span>
-            <button
-              onClick={() => setIsMobileDrawerOpen(true)}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg transition-colors"
-            >
-              <span className="text-xs font-medium">Módulos</span>
-              <List className="w-4 h-4" />
-            </button>
+        <main className="flex-1 min-w-0 bg-[#e9e4da] relative flex flex-col">
+          <div className="md:hidden p-3 border-b border-[#142637]/20 flex justify-between items-center bg-[#f5f1e9] flex-none gap-2">
+            <span className="font-bold text-[#142637] text-sm truncate">{currentModule.title}</span>
+            <button type="button" onClick={() => setIsMobileDrawerOpen(true)} aria-label="Abrir módulos" className="flex items-center gap-2 bg-[#142637] text-white px-3 py-2 shrink-0"><span className="text-xs font-bold">Módulos</span><List className="w-4 h-4" /></button>
           </div>
-
-          {/* Mobile Drawer */}
-          <div className={`fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm transform transition-transform duration-300 md:hidden flex flex-col ${
-            isMobileDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}>
-            <div className="p-4 border-b border-slate-800 flex justify-between items-center">
-              <h3 className="font-bold text-white">Módulos</h3>
-              <button onClick={() => setIsMobileDrawerOpen(false)} className="text-slate-300">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="overflow-y-auto flex-1 py-2">
-              {modules.map((module) => (
-                <ModuleItem key={module.id} module={module} />
-              ))}
-            </div>
-          </div>
-
-          {/* Video Container */}
-          <div className="flex-1 flex items-center justify-center p-2 sm:p-4 md:p-10 overflow-y-auto">
+          {isMobileDrawerOpen && <div className="fixed inset-0 z-50 bg-[#f5f1e9] md:hidden flex flex-col"><div className="p-4 border-b border-[#142637]/20 flex justify-between items-center"><h3 className="font-display text-3xl font-bold uppercase">Módulos / 29N</h3><button type="button" onClick={() => setIsMobileDrawerOpen(false)} aria-label="Cerrar módulos"><X className="w-6 h-6" /></button></div><div className="overflow-y-auto flex-1">{modules.map((module) => <ModuleItem key={module.id} module={module} />)}</div></div>}
+          <div className="flex-1 overflow-y-auto flex items-center justify-center p-4 sm:p-8 lg:p-12">
             <div className="w-full max-w-4xl">
-              <div className="bg-slate-900 rounded-lg md:rounded-xl shadow-2xl border border-slate-800 relative">
-                {currentModule.videoId ? (
-                  <div className="vimeo-container">
-                    <iframe
-                      src={getVimeoUrl(currentModule.videoId)}
-                      frameBorder="0"
-                      allow="autoplay; fullscreen; picture-in-picture"
-                      allowFullScreen
-                      title={`Video: ${currentModule.title}`}
-                      className="absolute top-0 left-0 w-full h-full"
-                    />
-                  </div>
-                ) : (
-                  <div className="aspect-video flex flex-col items-center justify-center text-slate-500 bg-slate-900">
-                    <PlayCircle className="w-16 h-16 mb-4 opacity-50" />
-                    <p className="text-center px-4">Próximamente disponible</p>
-                  </div>
-                )}
+              <p className="text-[#d94330] text-[11px] font-extrabold tracking-[.2em] uppercase mb-4">Campus Scrutinia / Módulo {String(currentModule.id + 1).padStart(2, '0')}</p>
+              <div className="bg-[#101f2d] shadow-[10px_10px_0_#d1cbbf]">
+                {currentModule.videoId ? <div className="relative aspect-video"><iframe src={`https://player.vimeo.com/video/${currentModule.videoId}?badge=0&autopause=0&player_id=0&app_id=58479&title=0&byline=0&portrait=0&playsinline=0`} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen title={`Vídeo: ${currentModule.title}`} className="absolute inset-0 w-full h-full" /></div> : <div className="aspect-video flex flex-col items-center justify-center text-[#a7b3b9]"><PlayCircle className="w-16 h-16 mb-4 opacity-50" /><p>Próximamente disponible</p></div>}
               </div>
-              
-              <div className="mt-4 md:mt-8 px-1">
-                <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">
-                  {currentModule.title}
-                </h1>
-                <p className="text-sm md:text-base text-slate-400 leading-relaxed">
-                  {currentModule.description}
-                </p>
-              </div>
+              <div className="mt-8 border-t border-[#142637]/25 pt-6"><h1 className="font-display text-4xl sm:text-5xl font-bold uppercase mb-3">{currentModule.title}</h1><p className="text-[#53616a] leading-relaxed max-w-2xl">{currentModule.description}</p></div>
             </div>
           </div>
         </main>
       </div>
-
       <Script src="https://player.vimeo.com/api/player.js" strategy="lazyOnload" />
-      
-      <style jsx global>{`
-        .active-module {
-          background: rgba(14, 165, 233, 0.1);
-          border-left: 3px solid #0ea5e9;
-        }
-        
-        .vimeo-container {
-          padding: 56.25% 0 0 0;
-          position: relative;
-        }
-        
-        .vimeo-container iframe {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-        }
-      `}</style>
     </div>
   );
 }
